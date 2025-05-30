@@ -1,0 +1,248 @@
+\documentclass{jcgt}
+
+\setciteauthor{Matthias Raab and Laurent Belcour and Frankie Liu and Jamie Portsmouth}
+\setcitetitle{The Minimal Retroreflective Microfacet Model (MRMM)}
+%\setheadtitle{Abbreviated title, only if full title won't fit in page headers}
+
+% Mark submissions with the date of submission using the following line:
+\submitted{\today}
+
+% Once an article is accepted accepted, switch to the following line and comment the preceding one. The editor will supply the argument values.
+\accepted{yyyy-mm-dd}{yyyy-mm-dd}{yyyy-mm-dd}{Editor Name}{volume}{issue}{1}{6}{yyyy}
+\seturl{http://jcgt.org/published/vol/issue/num/}
+
+\usepackage{amsmath}
+
+\newcommand{\vecv}{\mathbf{v}}
+\newcommand{\vecvv}{\mathbf{v'}}
+\newcommand{\vecl}{\mathbf{l}}
+\newcommand{\vecll}{\mathbf{l'}}
+\newcommand{\vecn}{\mathbf{n}}
+\newcommand{\vech}{\mathbf{h}}
+\newcommand{\vecb}{\mathbf{b}}
+
+\newcommand{\vdot}[2]{\left\langle #1, #2 \right\rangle}
+
+
+\begin{document}
+
+\author{Matthias Raab\\NVIDIA
+        \and Laurent Belcour\\Intel
+        \and Frankie Liu\\NVIDIA
+        \and Jamie Portsmouth\\Autodesk
+       }
+
+\title{The Minimal Retroreflective Microfacet Model}
+
+\maketitle
+\thispagestyle{firstpagestyle}
+
+\begin{abstract}
+  \small
+  We introduce the ``Minimal Retroreflective Microfacet'' (MRM) model, which provides a simple scheme for
+  modifying a pre-existing microfacet BRDF implementation to produce a visual plausible retroreflective result.
+  \end{abstract}
+
+\section{Introduction}
+
+
+
+
+\section{Microfacet BRDF Models}
+
+\begin{figure}
+  \begin{center}
+    \begin{tabular} {|l|l|}
+      \hline
+      $\vecv$ & normalized vector to viewer \\
+      \hline
+      $\vecl$ & normalized vector to light \\
+      \hline
+      $\vecn$ & surface normal \\
+      \hline
+      $\mathbf{t_1}, \mathbf{t_2}$ & tangent and bitangent  \\
+      \hline
+      $\vech$ & half vector, $\vech = \vech(\vecv, \vecl) = \frac{\vecv + \vecl}{\lVert \vecv + \vecl \rVert}$ \\
+      \hline
+      $\vdot{\mathbf{x}}{\mathbf{y}}$ & dot product of $\mathbf{x}$ and $\mathbf{y}$ \\
+      \hline
+      $\text{reflect}(\mathbf{x}, \mathbf{m})$ & reflection of vector $\mathbf{x}$ on surface with normal $\mathbf{m}$, i.e. $-\mathbf{x} + 2 \vdot{\mathbf{x}}{\mathbf{m}} \mathbf{m}$ \\
+      \hline
+      $\Omega$ & hemisphere of directions around the normal \\
+      \hline
+    \end{tabular}
+  \end{center}
+  \caption{Notations used.}
+  \label{fig:notation}
+\end{figure}
+
+Using the notations from figure \ref{fig:notation}, a microfacet BRDF \cite{WalterMicrofacet, HeitzMicrofacet} takes the form
+\begin{equation}\label{eq:microfacet}
+  f(\vecv, \vecl) = \frac{D(\vech) G_{2}(\vecv,\vecl)}{4 \vdot{\vecv}{\vecn} \vdot{\vecl}{\vecn}}
+\end{equation}
+where $D$ is the distribution of microfacets, normalized to fulfill $\int_\Omega D(\vech) \vdot{\vecn}{\vech} d\vech = 1$,
+and $G_{2}$ is the shadowing-masking function.
+The shadowing-masking function combines the visibility masking function $G_1(\vecv, \vecl)$ for view direction and
+$G_1(\vecl, \vecv)$ for light direction:
+\begin{equation}
+G_{2}(\vecv, \vecl) = G_{2}\left(G_1(\vecv, \vecl), G_1(\vecl, \vecv) \right)
+\end{equation}
+Mathematically, the BRDF is plausible if $G_{2}$ is symmetric w.r.t. to exchanging $\vecv$ and $\vecl$, fulfills
+$G_{2}(\vecv, \vecl) \leq G_1(\vecv, \vecl)$, and if $G_1$ further establishes the correct projected area of visible micro-surfaces \cite{HeitzMicrofacet}
+\begin{equation}\label{eq:visible}
+  \vdot{\vecv}{\vecn} = \int_{\lbrace\vech \in \Omega: \vdot{\vecv}{\vech} \geq 0\rbrace} D(\vech) G_1(\vecv, \text{reflect}(\vecv, \vech)) \vdot{\vecv}{\vech} d\vech.
+\end{equation}
+Choices for $G_1$ with this property are the Smith masking function
+\begin{equation}
+  G_1(\vecv, \vecl) = G_{1,\text{Smith}}(\vecv) = \frac{\vdot{\vecv}{\vecn}}{\int_{\lbrace\vech \in \Omega: \vdot{\vecv}{\vech} \geq 0\rbrace} D(\vech) \vdot{\vecv}{\vech} d\vech},
+\end{equation}
+where analytic expressions are available for Beckmann and GGX distributions, and the v-cavity masking function
+\begin{equation}
+  G_1(\vecv, \vecl) = G_{1,\text{vc}}(\vdot{\vecv}{\vecn},\vdot{\vecn}{\vech},\vdot{\vecv}{\vech}) =
+  \min\left\lbrace\frac{2\vdot{\vecv}{\vecn}\vdot{\vecn}{\vech}}{\vdot{\vecv}{\vech}}, 1\right\rbrace,
+\end{equation}
+which is generally applicable for distributions with symmetry around the normal.
+
+\section{Back-vector Modification}
+
+If instead of half-vector $\vech$ the back-vector $\vecb$, defined as
+\begin{equation}
+  \vecb(\vecv, \vecl) = \vech(\vecvv, \vecl) = \frac{\vecvv + \vecl}{\lVert \vecvv + \vecl \rVert}, \text{ with } \vecvv = \text{reflect}(\vecv, \vecn),
+\end{equation}
+is used in equation \eqref{eq:microfacet}, the resulting BRDF is retro-reflective \cite{BelcourBackvector}.
+Note that instead of explicitly defining a BRDF using the back-vector, we can simply use $\vecvv$ instead of $\vecv$, i.e. we define $f_{\text{retro}}(\vecv, \vecl) := f(\vecvv, \vecl)$ such that the half-vector becomes the back-vector.
+In the following we show that this BRDF is plausible, i.e. symmetry and energy conservation are guaranteed.
+
+\section{Plausibility of the Back-vector Modification}
+
+In analogy to $\vecvv$ we let $\vecll := \text{reflect}(\vecl, \vecn)$.
+First we observe
+\begin{equation}\label{eq:nk}
+  \begin{split}
+    \vdot{\vecvv}{\vecn} &= \vdot{\vecv}{\vecn} \text{ and}\\
+    \vdot{\vecl}{\vecn} &= \vdot{\vecll}{\vecn}.
+  \end{split}
+\end{equation}
+For the back-vector we show $\vech(\vecvv, \vecl) = \text{reflect}\left(\vech(\vecll, \vecv), \vecn\right)$, as
+\begin{equation}
+  \begin{split}
+  \vecvv + \vecl &=
+  \left(-\vecv + 2 \vdot{\vecv}{\vecn} \vecn \right) + \vecl \\
+  &= \left(-\vecv + 2 \vdot{\vecv}{\vecn} \vecn \right) + \left(- \vecll + 2 \vdot{\vecll}{\vecn} \vecn \right)\\
+  &= -(\vecll + \vecv) + 2 \vdot{(\vecll + \vecv)}{\vecn} \vecn =
+  \text{reflect}(\vecll + \vecv, \vecn)
+  \end{split}
+\end{equation}
+and therefore $\lVert \vecvv + \vecl \rVert = \lVert \vecll + \vecv \rVert$ as well.
+From that we can conclude
+\begin{equation}\label{eq:nh}
+  \begin{split}
+    \vdot{\vecn}{\vech(\vecvv, \vecl)} &=
+    \vdot{\vecn}{\vech(\vecll, \vecv)}\\
+    \vdot{\mathbf{t_1}}{\vech(\vecvv, \vecl)} &=
+    -\vdot{\mathbf{t_1}}{\vech(\vecll, \vecv)}\\
+    \vdot{\mathbf{t_2}}{\vech(\vecvv, \vecl)} &=
+    -\vdot{\mathbf{t_2}}{\vech(\vecll, \vecv)}.\\
+    \end{split}
+\end{equation}
+As anisotropic Phong, Beckmann, and GGX distributions are reflection-symmetric around the normal, i.e. they take the form $D(\vech) = D\left(\vdot{\vecn}{\vech}, \lvert \vdot{\mathbf{t_1}}{\vech} \rvert, \lvert \vdot{\mathbf{t_2}}{\vech} \rvert\right)$, we can thus infer that using them with the back-vector obeys symmetry.
+Further, the reflection symmetry of $D$ along with equation \eqref{eq:nk} gives
+\begin{equation}
+  \begin{split}
+  G_{1,\text{Smith}}(\vecv) &=
+  \frac{\vdot{\vecv}{\vecn}}{\int_{\lbrace\vech \in \Omega: \vdot{\vecv}{\vech} \geq 0\rbrace} D(\vech) \vdot{\vecv}{\vech} d\vech} \\
+  &= \frac{\vdot{\vecvv}{\vecn}}{\int_{\lbrace\vech \in \Omega: \vdot{\vecvv}{\vech} \geq 0\rbrace} D(\vech) \vdot{\vecvv}{\vech} d\vech} =
+  G_{1,\text{Smith}}(\vecvv)
+  \end{split}
+\end{equation}
+for Smith-masking. Next we show
+\begin{equation}
+  \vdot{\vecvv}{\vecl} = -\vdot{\vecv}{\vecl} + 2 \vdot{\vecv}{\vecn}\vdot{\vecl}{\vecn}
+  = \vdot{\vecv}{-\vecl + 2 \vdot{\vecl}{\vecn}\vecn} = \vdot{\vecv}{\vecll}
+\end{equation}
+and therefore
+\begin{equation}\label{eq:kh}
+  \vdot{\vecvv}{\vech(\vecvv, \vecl)} =
+  \frac{1 + \vdot{\vecl}{\vecvv}}{\lVert \vecvv + \vecl \rVert} =
+  \frac{1 + \vdot{\vecll}{\vecv}}{\lVert \vecll + \vecv \rVert} =
+  \vdot{\vecll}{\vech(\vecll,\vecv)}.
+\end{equation}
+Using this along with equations \eqref{eq:nh} and \eqref{eq:nk} we get
+\begin{equation}
+  \begin{split}
+  G_1(\vecvv, \vecl) &=
+  G_{1, \text{vc}}\left( \vdot{\vecvv}{\vecn}, \vdot{\vecn}{\vech(\vecvv, \vecl)}, \vdot{\vecvv}{\vech(\vecvv, \vecl)} \right)\\
+  &=  G_{1, \text{vc}}\left( \vdot{\vecv}{\vecn}, \vdot{\vecn}{\vech(\vecll, \vecv)}, \vdot{\vecll}{\vech(\vecll, \vecv)} \right) \\
+  &=  G_{1, \text{vc}}\left( \vdot{\vecv}{\vecn}, \vdot{\vecn}{\vech(\vecv, \vecll)}, \vdot{\vecll}{\vech(\vecv, \vecll)} \right) \\
+  &= G_1(\vecv, \vecll)
+  \end{split}
+\end{equation}
+and similarly $G_1(\vecl, \vecvv) = G_1(\vecll, \vecv)$ for the v-cavity masking function.
+In summary, we can conclude the symmetry of the BRDF
+\begin{equation}
+  \begin{split}
+  f_{\text{retro}}(\vecv, \vecl) =
+  f(\vecvv, \vecl) &=
+  \frac{D(\vech(\vecvv, \vecl)) G_{2}(G_1(\vecvv, \vecl), G_1(\vecl, \vecvv))}{4 \vdot{\vecvv}{\vecn} \vdot{\vecl}{\vecn} }\\
+  &=
+  \frac{D(\vech(\vecll, \vecv)) G_{2}(G_1(\vecv, \vecll), G_1(\vecll, \vecv))}{4 \vdot{\vecv}{\vecn} \vdot{\vecll}{\vecn} } =
+  f(\vecll, \vecv) =
+  f_{\text{retro}}(\vecl, \vecv).
+  \end{split}
+\end{equation}
+For the albedo we simply have
+\begin{equation}
+  \rho_{\text{retro}}(\vecv) =
+  \int_\Omega f_{\text{retro}}(\vecv, \vecl) \vdot{\vecl}{\vecn} d\vecl =
+  \int_\Omega f(\vecvv, \vecl) \vdot{\vecl}{\vecn} d\vecl = \rho(\vecvv)
+\end{equation}
+i.e. we get the albedo of the regular microfacet BRDF for the reflected direction.
+Which, using equation \eqref{eq:visible} and $\frac{d\vech(\vecvv, \vecl)}{d\vecl} = \frac{1}{4 \vdot{\vecl}{\vech(\vecvv, \vecl)}}= \frac{1}{4 \vdot{\vecvv}{\vech(\vecvv, \vecl)}}$ \cite{WalterMicrofacet}, can be shown to fulfill energy conservation
+\begin{equation}
+  \begin{split}
+  \rho(\vecvv) &=
+  \int_\Omega \frac{D(\vech(\vecvv, \vecl)) G_{2}(\vecvv,\vecl)}{4 \vdot{\vecvv}{\vecn} \vdot{\vecl}{\vecn}}\vdot{\vecl}{\vecn} d\vecl\\
+  &\leq
+  \int_{\lbrace\vech \in \Omega: \vdot{\vecvv}{\vech} \geq 0\rbrace} \frac{D(\vech) G_1(\vecvv,\text{reflect}(\vecvv, \vech))}{\vdot{\vecvv}{\vecn}}\vdot{\vecvv}{\vech} d\vech
+  = 1.
+  \end{split}
+\end{equation}
+
+\section{Implementation Notes}
+
+Given an implementation of a regular microfacet BRDF, extending it to retro-reflection is straightforward:
+
+\begin{itemize}
+\item
+  Evaluation merely needs to replace $\vecv$ with $\vecvv$ upfront.
+\item
+  Similarly, importance sampling of $\vecl$ given $\vecv$ can be realized by replacing $\vecv$ with $\vecvv$ upfront and then importance sampling the regular microfacet BRDF.
+  This may include low variance sampling using the domain of visible microfacets \cite{HeitzIS}.
+\item
+  As the albedos of standard BRDF and retro-reflective BRDF are essentially identical, compensating for energy loss in the sense of \cite{KelemenBRDF} can be realized using the same data tables.
+\end{itemize}
+
+
+
+\bibliographystyle{jcgt}
+\bibliography{citations}
+
+\section*{Author Contact Information}
+
+\hspace{-2mm}\begin{tabular}{p{0.48\textwidth}p{0.48\textwidth}}
+Matthias Raab \newline
+\href{mailto:matthias.raab@gmail.com}{matthias.raab@gmail.com} \newline
+&
+Laurent Belcour \newline
+\href{mailto:laurent.belcour@gmail.com}{laurent.belcour@gmail.com} \\
+Frankie Liu \newline
+\href{mailto:frankie.liu@gmail.com}{frankie.liu@gmail.com} \newline
+&
+Jamie Portsmouth \newline
+\href{mailto:jamports@mac.com}{jamports@mac.com} \newline
+\end{tabular}
+
+
+\end{document}
+
+
