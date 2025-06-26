@@ -133,7 +133,7 @@
     \includegraphics[width=0.32\linewidth]{figures/sphere_side_r0.3.png     }
     \includegraphics[width=0.32\linewidth]{figures/sphere_quarter_r0.3.png  }
     \includegraphics[width=0.32\linewidth]{figures/sphere_front_r0.3.png    }
-  \caption{Comparison of our retroreflector model (top) obtained by an almost trivial modification of the equivalent roughness GGX microfacet model (bottom). The lighting varies (left to right) from side-on, quarter-on, and straight-on, exhibiting the strong retro-reflective peak.
+  \caption{Comparison of our retroreflector model (top) obtained by an almost trivial modification of the equivalent roughness GGX microfacet model (bottom). The lighting varies (left to right) from side-on, to quarter-on, and straight-on, exhibiting the strong retro-reflective peak.
    \vspace{-0.5cm}
   \label{fig:teaser}}
 }
@@ -148,9 +148,9 @@
 
 \section{Introduction}
 
-Rendering of retro-reflective materials is useful in a variety of contexts. A number of CG models have been proposed. For practical purposes in visual effects, we are interested in a model which is a) visually plausible at least, b) provably energy-conserving, c) efficient and easy to implement, ideally a small modification to well-understood microfacet models. We present here a model based on a the previously published back-vector formulation~\cite{BelcourBackvector} which meets are these requirements. It is so simple a modification to a regular microfacet model, that we `Minimal Retroreflective Microfacet'' (MRM) model which achieves a plausible retro-reflective result.
+Rendering of retro-reflective materials is useful in a variety of contexts. A number of CG models have been proposed. For practical purposes in visual effects, we are interested in a model which is a) visually plausible at least, b) provably energy-conserving, c) efficient and easy to implement, ideally a small modification to well-understood microfacet models. We present here a model based on the previously published ``back-vector'' formulation~\cite{BelcourBackvector} which meets are these requirements. It is so simple a modification to a regular microfacet model, that we term it the ``Minimal Retroreflective Microfacet'' (MRM) model which achieves a plausible retro-reflective result.
 
-In this document, we detail the correct usage and derivation of this retro-reflective BRDF model within the microfacet framework~\cite{WalterMicrofacet,HeitzMicrofacet}. We first recall some basic principles from microfacets theory (Section~\ref{sec:microfacets}) and show how to change it to account for retro-reflective microfacets (Section~\ref{sec:backvector}). We then detail how to implement this in practice (Section~\ref{sec:implementation}). Finally, we discuss how retro-reflection can occur at the microfacet level (Section~\ref{sec:plausibility}).
+In this document, we detail the correct usage and derivation of this retro-reflective BRDF model within the microfacet framework~\cite{WalterMicrofacet,HeitzMicrofacet}. We first recall some basic principles from microfacet theory (Section~\ref{sec:microfacets}) and show how to account for retro-reflective microfacets (Section~\ref{sec:backvector}) within this framework. We then detail how to implement this in practice (Section~\ref{sec:implementation}). Finally, we discuss how retro-reflection can occur at the microfacet level (Section~\ref{sec:plausibility}).
 
 \section{Microfacet BRDF Models}
 \label{sec:microfacets}
