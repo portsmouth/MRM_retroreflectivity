@@ -363,9 +363,15 @@ Given an implementation of a regular microfacet BRDF, extending it to retro-refl
     nolol=true,
     frame=trBL
     ]
-vec3 retroGGX(vec3 L, vec3 V, vec3 N, vec3 X, vec3 Y)
+vec3 brdf_retro(vec3 L, vec3 V, vec3 N, vec3 X, vec3 Y)
 {
     vec3 Vp = -reflect(V,N); // jp - is this wrong? Why the minus sign
+
+    // The following could all be replaced with:
+    // We could give the simplified form of brdf_ggx, but not essential.
+    return brdf_ggx(L, Vp, N, X, Y);
+
+    /*
     float NdotL = dot(N, L);
     float NdotV = dot(N, Vp);
     if (NdotL < 0 || NdotV < 0) return vec3(0);
@@ -384,6 +390,7 @@ vec3 retroGGX(vec3 L, vec3 V, vec3 N, vec3 X, vec3 Y)
 
     float val = Ks * D * G * F / (4 * NdotL * NdotV);
     return vec3(val);
+    */
 }
 \end{lstlisting}
 \end{minipage}
