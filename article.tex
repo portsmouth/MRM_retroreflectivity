@@ -328,16 +328,17 @@ For the albedo we simply have
   \int_\Omega f(\vecvv, \vecl) \vdot{\vecl}{\vecn} d\vecl = \rho(\vecvv)
 \end{equation}
 i.e. we get the albedo of the regular microfacet BRDF for the reflected direction.
-Which, using equation \eqref{eq:visible} and $\frac{d\vech(\vecvv, \vecl)}{d\vecl} = \frac{1}{4 \vdot{\vecl}{\vech(\vecvv, \vecl)}}= \frac{1}{4 \vdot{\vecvv}{\vech(\vecvv, \vecl)}}$ \cite{WalterMicrofacet}, can be shown to fulfill energy conservation
-\begin{equation}
-  \begin{split}
-  \rho(\vecvv) &=
-  \int_\Omega \frac{D(\vech(\vecvv, \vecl)) G_{2}(\vecvv,\vecl)}{4 \vdot{\vecvv}{\vecn} \vdot{\vecl}{\vecn}}\vdot{\vecl}{\vecn} d\vecl\\
-  &\leq
-  \int_{\lbrace\vech \in \Omega: \vdot{\vecvv}{\vech} \geq 0\rbrace} \frac{D(\vech) G_1(\vecvv,\text{reflect}(\vecvv, \vech))}{\vdot{\vecvv}{\vecn}}\vdot{\vecvv}{\vech} d\vech
-  = 1.
-  \end{split}
-\end{equation}
+As the original microfacet BRDF fulfills energy conversion, the retro-reflective modification does, too.
+%% Which, using equation \eqref{eq:visible} and $\frac{d\vech(\vecvv, \vecl)}{d\vecl} = \frac{1}{4 \vdot{\vecl}{\vech(\vecvv, \vecl)}}= \frac{1}{4 \vdot{\vecvv}{\vech(\vecvv, \vecl)}}$ \cite{WalterMicrofacet}, can be shown to fulfill energy conservation
+%% \begin{equation}
+%%   \begin{split}
+%%   \rho(\vecvv) &=
+%%   \int_\Omega \frac{D(\vech(\vecvv, \vecl)) G_{2}(\vecvv,\vecl)}{4 \vdot{\vecvv}{\vecn} \vdot{\vecl}{\vecn}}\vdot{\vecl}{\vecn} d\vecl\\
+%%   &\leq
+%%   \int_{\lbrace\vech \in \Omega: \vdot{\vecvv}{\vech} \geq 0\rbrace} \frac{D(\vech) G_1(\vecvv,\text{reflect}(\vecvv, \vech))}{\vdot{\vecvv}{\vecn}}\vdot{\vecvv}{\vech} d\vech
+%%   = 1.
+%%   \end{split}
+%% \end{equation}
 
 \section{Implementation Notes}
 \label{sec:implementation}
@@ -418,7 +419,7 @@ Given an implementation of a regular microfacet BRDF, extending it to retro-refl
 
 \hspace{-2mm}\begin{tabular}{p{0.48\textwidth}p{0.48\textwidth}}
 Matthias Raab \newline
-\href{mailto:matthias.raab@gmail.com}{matthias.raab@gmail.com} \newline
+\href{mailto:mraab@nvidia.com}{mraab@nvidia.com} \newline
 &
 Laurent Belcour \newline
 \href{mailto:laurent.belcour@gmail.com}{laurent.belcour@gmail.com} \\
