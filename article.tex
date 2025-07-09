@@ -157,7 +157,8 @@ In this document, we detail the correct usage and derivation of this retro-refle
 
 \begin{figure}
   \begin{center}
-    \begin{tabular} {|l|l|}
+    \begin{tabular} {|p{0.2\textwidth}|p{0.7\textwidth}|}
+%    \begin{tabular} {|l|l|}
       \hline
       $\vecv$ & normalized vector to viewer \\
       \hline
@@ -215,32 +216,49 @@ which is generally applicable for distributions with symmetry around the normal.
 \section{Back-vector Modification}
 \label{sec:backvector}
 
-If instead of half-vector $\vech$, we use the back-vector $\vecb$~\cite{BelcourBackvector} defined as
+Instead of half-vector $\vech$, we can use the back-vector $\vecb$~\cite{BelcourBackvector} defined as
 \begin{equation}
   \vecb(\vecv, \vecl) = \vech(\vecvv, \vecl) = \frac{\vecvv + \vecl}{\lVert \vecvv + \vecl \rVert}, \text{ with } \vecvv = \text{reflect}(\vecv, \vecn),
 \end{equation}
-to select the reflecting microfacet, we are to re-derive the microfacet model.
+to select the reflecting microfacet. %, we are to re-derive the microfacet model.
+As illustrated in figure \ref{fig:backvector}, the reflection $\vecvv$ of the view direction $\vecv$ on the surface can also be interpreted as an reflection of the view direction on a plane aligned with $\vecv$ and perpendicular to the surface.
+Intuitively, this is equivalent of observing the microfacet reflection through a virtual mirror, thus turning glossy forward-reflection into glossy retro-reflection.
+While there is no immediate physical foundation to this construction, this interpretation can serve as motivation why components from the regular microfacet model still work when changing the domain to the back-vector.
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.2\textwidth]{figures/sphere_front_r0.3.png} % TODO: add sketch
+  \end{center}
+  \caption{Geometry of the back vector, illustrated in two dimensions.}
+  \label{fig:backvector}
+\end{figure}
 
 \paragraph*{Jacobian of Back-Vector.}
-The first step is to write the Jacobian of the change of variable from the back-vector to the light vector $\vecl$~(Equation~(11) and~(14) of \citet{WalterMicrofacet}). Fortunately, this jacobian has the same form as the half-vector one:
+First we observe that  Jacobian of the change of variable from the back-vector to the light vector $\vecl$~(Equation~(11) and~(14) of \citet{WalterMicrofacet}) has the same form as the half-vector one:
 \begin{equation}
 \left\lVert \dfrac{\partial \omega_{\vecb}}{\partial \omega_{\vecl}} \right\rVert = \left\lVert \dfrac{\partial \omega_{\vech(\vecvv, \vecl)}}{\partial \omega_{\vecl}} \right\rVert = \dfrac{1}{4 \left| \vecl \cdot \vech(\vecvv, \vecl) \right|} = \dfrac{1}{4 \left| \vecl \cdot \vecb \right|}
 \end{equation}
 
 \paragraph*{Microfacet reflection term.}
-We do not know for sure how the retro-reflective microfacet interacts with incident light. However, we have experimental evidence~\cite{BelcourBackvector} that it behaves similarly to a Fresnel term. We opted to reuse the Fresnel as well in the $(\vecvv, \vecl)$ configuration. As such, we update the formulation of $\rho(\vecv, \vecm)$~(Equation (11) of \citet{WalterMicrofacet}) to use the reflected view vector instead. It follows that the reflection microsurface BRDF~(Equation (15) of \citet{WalterMicrofacet}) becomes
+There is experimental evidence~\cite{BelcourBackvector} that using a Fresnel term based on the back-vector can provide a good match to actual retro-reflective material measurements.
+As such, we update the formulation of $\rho(\vecv, \vecm)$~(Equation (11) of \citet{WalterMicrofacet}) to use the reflected view vector instead. It follows that the reflection microsurface BRDF~(Equation (15) of \citet{WalterMicrofacet}) becomes
 \begin{equation}
   f_r^m(\vecv, \vecl, \vecm) = F(\vecvv, \vecm) \dfrac{\delta(\vecb, \vecm) }{4 \left| \vecvv \cdot \vecb \right|^2}.
 \end{equation}
 We used the fact that $\left| \vecl \cdot \vecb \right| = \left| \vecvv \cdot \vecb \right|$.
 
-\paragraph*{Shadowing \& Masking.} \todo{Laurent: I think we could extract the shadowing from Matthias derivation here. The other way to justify the derivation of the full model is to highlight that Smith's shadowing/masking does not depend on the microfacet (appart from the sideness). Hence, whatever the microfacet selector (as long as the sideness matches), the shadowing/masking is the same. Since $\vecv$ and $\vecvv$ share the same slope, we can exchange them in the equation.}
+\paragraph*{Shadowing \& Masking.}
+We simply apply Smith or v-cavities masking to the mirrored microfacet distribution.
+With Smith masking, this is actually identical to a regular microfacet BRDF, as $\vecvv$ and $\vecv$ share the same geometric configuration.
+For v-cavities masking, we take $\vecvv$ as view direction and, consequently, $\vecb$ as microfacet normal.
+%todo{Laurent: I think we could extract the shadowing from Matthias derivation here. The other way to justify the derivation of the full model is to highlight that Smith's shadowing/masking does not depend on the microfacet (appart from the sideness). Hence, whatever the microfacet selector (as long as the sideness matches), the shadowing/masking is the same. Since $\vecv$ and $\vecvv$ share the same slope, we can exchange them in the equation.}
 
 \paragraph*{Final form.}
+The final retro-reflective microfacet model can be written as
 \begin{equation}
-  f_R(\vecv, \vecl) = \frac{D(\vecb) \, G_{2}(\vecvv,\vecl) \, F(\vecb, \vecvv)}{4 \vdot{\vecvv}{\vecn} \vdot{\vecl}{\vecn}}
-  \label{eq:retro_microfacet_model}
+  f_\text{retro}(\vecv, \vecl) = f(\vecvv, \vecl) = \frac{D(\vecb) \, G_{2}(\vecvv,\vecl) \, F(\vecb, \vecvv)}{4 \vdot{\vecvv}{\vecn} \vdot{\vecl}{\vecn}}
+  \label{eq:retro_microfacet_model}.
 \end{equation}
+In the following section we show in detail that this model is plausible, i.e. that symmetry and energy conservation requirements are fulfilled.
 
 \section{Plausibility of the Back-vector Modification}
 
@@ -395,21 +413,6 @@ vec3 brdf_retro(vec3 L, vec3 V, vec3 N, vec3 X, vec3 Y)
 }
 \end{lstlisting}
 \end{minipage}
-
-\section{Implementation Notes}
-
-Given an implementation of a regular microfacet BRDF, extending it to retro-reflection is straightforward:
-
-\begin{itemize}
-\item
-  Evaluation merely needs to replace $\vecv$ with $\vecvv$ upfront.
-\item
-  Similarly, importance sampling of $\vecl$ given $\vecv$ can be realized by replacing $\vecv$ with $\vecvv$ upfront and then importance sampling the regular microfacet BRDF.
-  This may include low variance sampling using the domain of visible microfacets \cite{HeitzIS}.
-\item
-  As the albedos of standard BRDF and retro-reflective BRDF are essentially identical, compensating for energy loss in the sense of \cite{KelemenBRDF} can be realized using the same data tables.
-\end{itemize}
-
 
 
 \bibliographystyle{jcgt}
