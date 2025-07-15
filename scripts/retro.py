@@ -20,11 +20,11 @@ def D_ggx(M, r):
     Ddenom = math.pi * ax * ay * sqr(sqr(M[0]/ax) + sqr(M[1]/ay) + sqr(M[2]))
     return 1.0 / max(Ddenom, DENOM_TOLERANCE)
 
-
 def ggx_lambda(V, r):
     if abs(V[2]) < FLT_EPSILON:
         return 0.0
-    return (-1.0 + sqrt(1.0 + (sqr(r*V[0]) + sqr(r*V[1]))/sqr(V[2]))) / 2.0
+    a = sqr(r)
+    return (-1.0 + sqrt(1.0 + (sqr(a*V[0]) + sqr(a*V[1]))/sqr(V[2]))) / 2.0
 
 def G2_ggx(V, L, m, r):
     return 1.0 / (1.0 + ggx_lambda(V, r) + ggx_lambda(L, r))
