@@ -265,20 +265,27 @@ While there is no immediate physical foundation to this construction, this inter
 
 
 \paragraph*{Jacobian of Back-Vector.}
-First we observe that  Jacobian of the change of variable from the back-vector to the light vector $\vecl$~(Equation~(11) and~(14) of \citet{WalterMicrofacet}) has the same form as the half-vector one:
+First we observe that Jacobian of the change of variable from the back-vector to the light vector $\vecl$ for specular microfacets~(Equation~(11) and~(14) of \citet{WalterMicrofacet}) has the same form as the half-vector one:
 \begin{equation}
-\left\lVert \dfrac{\partial \omega_{\vecb}}{\partial \omega_{\vecl}} \right\rVert = \left\lVert \dfrac{\partial \omega_{\vech(\vecvv, \vecl)}}{\partial \omega_{\vecl}} \right\rVert = \dfrac{1}{4 \left| \vdot{\vecl}{\vech(\vecvv, \vecl)} \right|} = \dfrac{1}{4 \left| \vdot{\vecl}{\vecb} \right|}
+\left\lVert \dfrac{\partial \omega_{\vecb_{r}}}{\partial \omega_{\vecl}} \right\rVert = \left\lVert \dfrac{\partial \omega_{\vech_{r}(\vecvv, \vecl)}}{\partial \omega_{\vecl}} \right\rVert = \dfrac{1}{4 \left| \vdot{\vecl}{\vech(\vecvv, \vecl)} \right|} = \dfrac{1}{4 \left| \vdot{\vecl}{\vecb} \right|}
 \end{equation}
-\todo{Formulate this for refraction or remove/simplify?}
+We also observe that this is true for refractive microfacets~(Equation (17) of \citet{WalterMicrofacet}):
+\begin{equation}
+\left\lVert \dfrac{\partial \omega_{\vecb_{t}}}{\partial \omega_{\vecl}} \right\rVert = \left\lVert \dfrac{\partial \omega_{\vech_{t}(\vecvv, \vecl)}}{\partial \omega_{\vecl}} \right\rVert = \dfrac{  \eta_o^2 \left| \vecl, \vech_{t}(\vecvv, \vecl)  \right|}{ \left\lVert \vech_{t}(\vecvv, \vecl) \right\rVert^2}
+\end{equation}
+This is due to the fact that we have to differentiate with respect to the light direction (which is not altered by the back vector).
 
 \paragraph*{Microfacet reflection term.}
 There is experimental evidence~\cite{BelcourBackvector} that using a Fresnel term based on the back-vector can provide a good match to actual retro-reflective material measurements for a reflection back-vector based BRDF.
 As such, we update the formulation of $\rho(\vecv, \vecm)$~(Equation (11) of \citet{WalterMicrofacet}) to use the reflected view vector instead. It follows that the reflection microsurface BRDF~(Equation (15) of \citet{WalterMicrofacet}) becomes
 \begin{equation}
-  f_r^m(\vecv, \vecl, \vecm) = F(\vecvv, \vecm) \dfrac{\delta(\vecb, \vecm) }{4 \left| \vdot{\vecvv}{\vecb} \right|^2}.
+  f_r^m(\vecv, \vecl, \vecm) = F(\vecvv, \vecm) \dfrac{\delta(\vecb_r, \vecm) }{4 \left| \vdot{\vecvv}{\vecb_r} \right|^2}.
 \end{equation}
 We used the fact that $\left| \vdot{\vecl}{\vecb} \right| = \left| \vdot{\vecvv}{\vecb} \right|$.
-\todo{Formulate this for refraction or remove/simplify?}
+Similarly, for the transmissive microsurfacet BTDF (Equation~(18) of \citet{WalterMicrofacet}) we get
+\begin{equation}
+  f_t^m(\vecv, \vecl, \vecm) = \left(1-F(\vecvv, \vecm)\right) \dfrac{\delta(\vecb_t, \vecm) \eta_o^2 }{\left( \eta_i \vdot{\vecv^\prime}{\vecb_t} + \eta_o \vdot{\vecl}{\vecb_t} \right)^2}.
+\end{equation}
 
 \paragraph*{Shadowing \& Masking.}
 We simply apply Smith or v-cavities masking to the mirrored microfacet distribution.
