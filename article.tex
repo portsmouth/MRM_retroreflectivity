@@ -161,9 +161,15 @@
 
 \section{Introduction}
 
-Rendering of retro-reflective materials is useful in a variety of contexts. A number of CG models have been proposed. For practical purposes in visual effects, we are interested in a model which is a) visually plausible at least, b) provably energy-conserving, c) efficient and easy to implement, ideally a small modification to well-understood microfacet models. We present here a model based on the previously published ``back-vector'' formulation~\cite{BelcourBackvector} which meets are these requirements. It is so simple a modification to a regular microfacet model, that we term it the ``Minimal Retroreflective Microfacet'' (MRM) model which achieves a plausible retro-reflective result.
+Rendering of retro-reflective materials is useful in a variety of contexts. For security garnments and signs, retroreflective appearances are heavily used. \todo{Different usage and forms} We known for measurements that retro-reflective tapes exhibit an imperfect (rough) retro-reflective lobe~\cite{BelcourBackvector}.
 
-In this document, we detail the correct usage and derivation of this retro-reflective BSDF model within the microfacet framework~\cite{WalterMicrofacet,HeitzMicrofacet}.
+For practical purposes in visual effects, we are interested in a model which is a) visually plausible at least and follows measured observations, b) provably energy-conserving, c) efficient and easy to implement, ideally a small modification to well-understood surface models.
+\paragraph{Previous works.}
+Modeling of retro-reflectivity in the surface scattering function has received little attention so far. For example, \citet{Guo2017Retro} proposed a model to incorporate the retro-reflectivity of prismatic sheets. However, their model only provide pure retro-reflection which would lack artistic control. They later extented this model account for imperfect retro-reflection with the addition of a microfacet surface (following Beckmann's normal distribution) above the prismatic sheet~\citet{Guo2018Retro}. However, due to the coupling of retro-reflection and rough refraction, they were unable to derive a close form solution for it and relied on fitting of the ground truth model.
+
+\paragraph{Our model.} In this document, we present a model based on the previously published ``back-vector'' formulation~\cite{BelcourBackvector} which meets production requirements. It is also a simple modification to a regular microfacet model, that we term it the ``Minimal Retroreflective Microfacet'' (MRM) model which achieves a plausible retro-reflective result.
+
+We detail the correct usage and derivation of this retro-reflective BSDF model within the microfacet framework~\cite{WalterMicrofacet,HeitzMicrofacet}.
 We first recall some basic principles from microfacet theory (Section~\ref{sec:microfacets}), then show how this model can be steered from forward- to retro-reflection (Section~\ref{sec:backvector}), and further provide proof that the resulting BSDF is fully plausible (Section~\ref{sec:plausibility}).
 Finally, we sketch how the model can be implemented in practice (Section~\ref{sec:implementation}).
 
@@ -198,7 +204,9 @@ Finally, we sketch how the model can be implemented in practice (Section~\ref{se
       \hline
     \end{tabular}
   \end{center}
-  \caption{Notations used.}
+  \caption{
+    Notations used.
+  }
   \label{fig:notation}
 \end{figure}
 
