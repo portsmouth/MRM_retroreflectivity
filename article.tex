@@ -462,6 +462,9 @@ As the original microfacet BSDF fulfills energy conversion, the retro-reflective
 %%   = 1.
 %%   \end{split}
 %% \end{equation}
+We further note that under our requirement of a reflection-symmetric microfacet normal distribution, the geometric
+configurations for $\vecv$ and $\vecvv$ are identical.
+Hence we can conclude $\rho_r(\vecv) = \rho_r(\vecvv)$ and $\rho_t(\vecv) = \rho_t(\vecvv)$, which in turn implies that the albedos of forward and retro-reflection are the same, i.e. $\rho_{r, \text{retro}}(\vecv) = \rho_r(\vecv)$ and $\rho_{t, \text{retro}}(\vecv) = \rho_t(\vecv)$.
 
 \section{Implementation Notes}
 \label{sec:implementation}
@@ -500,6 +503,13 @@ Eval_result eval_bsdf_retro(vec3 V, vec3 L, vec3 N, Bsdf_params params)
 
 \end{lstlisting}
 \end{minipage}
+
+\paragraph*{Combination of BRDF and BTDF}
+
+The albedo is identical for forward- and retro-reflective BRDF as well as BTDF,
+which allows to arbitrarily combine forward- and retro-reflective variants into a BSDF.
+When constructing an artist-controllable retro-reflective dielectric BSDF, we observed that using $f_t$ instead of $f_{t, \text{retro}}$ yields more intuitive results, in particular for an index of refraction close to 1.
+
 
 
 \bibliographystyle{jcgt}
