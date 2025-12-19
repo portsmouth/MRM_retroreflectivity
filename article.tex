@@ -19,7 +19,7 @@
 
 
 \setciteauthor{Matthias Raab and Laurent Belcour and Frankie Liu and Jamie Portsmouth}
-\setcitetitle{The Minimal Retroreflective Microfacet Model (MRMM)}
+\setcitetitle{The Minimal Retroreflective Microfacet Model (MRM)}
 %\setheadtitle{Abbreviated title, only if full title won't fit in page headers}
 
 % Mark submissions with the date of submission using the following line:
@@ -64,6 +64,12 @@
 \urlstyle{same}
 
 \captionsetup[table]{skip=10pt}
+
+\lstdefinestyle{snippet}{
+  float=tp,
+  floatplacement=tbp,
+  abovecaptionskip=5pt
+}
 
 \lstdefinelanguage{GLSL}%
 {%
@@ -142,13 +148,18 @@
 
 \teaser{
   \vspace*{-0.5cm}
-  \centering
-    \includegraphics[width=0.32\linewidth]{figures/sphere_side_r0.3.png     }
-    \includegraphics[width=0.32\linewidth]{figures/sphere_quarter_r0.3.png  }
-    \includegraphics[width=0.32\linewidth]{figures/sphere_front_r0.3.png    }
-  \caption{Comparison of our retroreflector model (top) obtained by an almost trivial modification of the equivalent roughness GGX microfacet model (bottom). The lighting varies (left to right) from side-on, to quarter-on, and straight-on, exhibiting the strong retro-reflective peak.
+    \hfill
+    \includegraphics[width=0.25\linewidth]{figures/cone/nonretro_cone_cropped_label.png}
+    \includegraphics[width=0.25\linewidth]{figures/jacket/nonretro_jacket_cropped_label.png}
+    \includegraphics[width=0.25\linewidth]{figures/shoe/nonretro_shoe_cropped_label.png} \\
+    \vspace{0.06cm}
+    \includegraphics[width=0.25\linewidth]{figures/cone/retro_cone_cropped_label.png}
+    \includegraphics[width=0.25\linewidth]{figures/jacket/retro_jacket_cropped_label.png}
+    \includegraphics[width=0.25\linewidth]{figures/shoe/retro_shoe_cropped_label.png}
+    \hfill
+  \caption{Comparison of our ``Minimal Retroreflective Microfacet'' (MRM) retroreflector model (bottom row) obtained by an almost trivial modification of the equivalent roughness GGX microfacet model (top row). The lighting in all cases is aligned with the view direction, exhibiting a strong retro-reflective peak.}
    \vspace{-0.5cm}
-  \label{fig:teaser}}
+  \label{fig:teaser}
 }
 
 \maketitle
@@ -156,22 +167,21 @@
 
 \begin{abstract}
   \small
-  We introduce the ``Minimal Retroreflective Microfacet'' (MRM) model, which provides a simple scheme for modifying a pre-existing microfacet BSDF implementation to produce a visually plausible, energy-conserving retroreflective result.
+  We describe the ``Minimal Retroreflective Microfacet'' (MRM) model, which provides a simple scheme for modifying a pre-existing microfacet BSDF implementation to produce a visually plausible, energy-conserving retroreflective result.
   \end{abstract}
 
 \section{Introduction}
 
-Rendering of retro-reflective materials is useful in a variety of contexts. For security garments and signs, retroreflective appearances are heavily used. A number of CG models have been proposed. For practical purposes in visual effects, we are interested in a model which is a) visually plausible at least, b) provably energy-conserving, c) efficient and easy to implement, ideally a small modification to well-understood microfacet models. We present here a model based on the previously published ``back-vector'' formulation~\cite{BelcourBackvector} which meets these requirements. It is so simple a modification to a regular microfacet model, that we term it the ``Minimal Retroreflective Microfacet'' (MRM) model which achieves a plausible retro-reflective result.
+Rendering of retro-reflective materials is useful in a variety of contexts. For safety applications such as road markings, signs, vehicles and high-visibility clothing items, retroreflective materials are heavily used (see Figure~\ref{fig:teaser} for some examples). Such materials are typically designed to be retroreflective via a substructure of elements which preferentially scatter light backwards. A number of CG models have been proposed to model retro-reflective materials, but typically they are either not energy-conserving, not easily integrated into existing rendering systems, or too complex to be practical for production use.
 
-For practical purposes in visual effects, we are interested in a model which is a) visually plausible at least and follows measured observations, b) provably energy-conserving, c) efficient and easy to implement, ideally a small modification to well-understood surface models.
+For practical purposes in visual effects, we are interested in a model which is a) visually plausible at least and follows measured observations, b) provably energy-conserving, c) efficient and easy to implement, ideally a small modification to well-understood surface models. We present here a model based on the previously published ``back-vector'' formulation~\cite{BelcourBackvector} which meets these requirements. It is so simple a modification to a regular microfacet model, that we term it the ``Minimal Retroreflective Microfacet'' (MRM) model which achieves a plausible retro-reflective result.
+
 \paragraph{Previous works.}
-Modeling of retro-reflectivity in the surface scattering function has received little attention so far. For example, \citet{Guo2017Retro} proposed a model to incorporate the retro-reflectivity of prismatic sheets. However, their model only provide pure retro-reflection which would lack artistic control. They later extented this model account for imperfect retro-reflection with the addition of a microfacet surface (following Beckmann's normal distribution) above the prismatic sheet~\citet{Guo2018Retro}. However, due to the coupling of retro-reflection and rough refraction, they were unable to derive a close form solution for it and relied on fitting of the ground truth model.
+Modeling of retro-reflectivity in the surface scattering function has received little attention so far. For example, \citet{Guo2017Retro} proposed a model to incorporate the retro-reflectivity of prismatic sheets. However, their model only provides pure retro-reflection which would lack artistic control. They later extented this model to account for imperfect retro-reflection with the addition of a microfacet surface (following Beckmann's normal distribution) above the prismatic sheet~\citet{Guo2018Retro}. However, due to the coupling of retro-reflection and rough refraction, they were unable to derive a close form solution for it and relied on fitting of the ground truth model.
 
 \paragraph{Our model.} In this document, we present a model based on the previously published ``back-vector'' formulation~\cite{BelcourBackvector} which meets production requirements. It is also a simple modification to a regular microfacet model, that we term it the ``Minimal Retroreflective Microfacet'' (MRM) model which achieves a plausible retro-reflective result.
 
-We detail the correct usage and derivation of this retro-reflective BSDF model within the microfacet framework~\cite{WalterMicrofacet,HeitzMicrofacet}.
-We first recall some basic principles from microfacet theory (Section~\ref{sec:microfacets}), then show how this model can be steered from forward- to retro-reflection (Section~\ref{sec:backvector}), and further provide proof that the resulting BSDF is fully plausible (Section~\ref{sec:plausibility}).
-Finally, we sketch how the model can be implemented in practice (Section~\ref{sec:implementation}).
+We detail the correct usage and derivation of this retro-reflective BSDF model within the microfacet framework~\cite{WalterMicrofacet,HeitzMicrofacet}. We first recall some basic principles from microfacet theory (Section~\ref{sec:microfacets}), then show how this model can be steered from forward- to retro-reflection (Section~\ref{sec:backvector}), and further provide proof that the resulting BSDF is fully plausible (Section~\ref{sec:plausibility}). In Section~\ref{sec:implementation}, we sketch how the model can be implemented in practice, which is done trivially by reusing existing microfacet BSDF implementations. Finally, we provide some visual results and discussion of the behavior (Section~\ref{sec:results}).
 
 \section{Microfacet BSDF Models}
 \label{sec:microfacets}
@@ -205,12 +215,12 @@ Finally, we sketch how the model can be implemented in practice (Section~\ref{se
     \end{tabular}
   \end{center}
   \caption{
-    Notations used.
+    Notation used.
   }
   \label{fig:notation}
 \end{figure}
 
-Using the notations from Figure \ref{fig:notation}, a microfacet BRDF \cite{WalterMicrofacet, HeitzMicrofacet} takes the form (\citet{WalterMicrofacet} Equation (20))
+Using the notation of Figure \ref{fig:notation}, a microfacet BRDF \cite{WalterMicrofacet, HeitzMicrofacet} takes the form (\citet{WalterMicrofacet} Equation (20))
 \begin{equation}
   f_r(\vecv, \vecl) = \frac{D(\vechr) \, G_{2}(\vecv,\vecl) \, F(\vechr, \vecv)}{4 \vdot{\vecv}{\vecn} \vdot{\vecl}{\vecn}}
   \label{eq:microfacet_brdf}
@@ -230,18 +240,18 @@ In this work, we show that we can use the back vector~\cite{BelcourBackvector} u
 The shadowing-masking function combines the visibility masking function $G_1(\vecv, \vecl)$ for view direction and
 $G_1(\vecl, \vecv)$ for light direction:
 \begin{equation}
-G_{2}(\vecv, \vecl) = G_{2}\left(G_1(\vecv, \vecl), G_1(\vecl, \vecv) \right)
+G_{2}(\vecv, \vecl) = G_{2}\left(G_1(\vecv, \vecl), G_1(\vecl, \vecv) \right) \ .
 \end{equation}
 Mathematically, the BSDF is plausible if $G_{2}$ is symmetric w.r.t. to exchanging $\vecv$ and $\vecl$, fulfills
 $G_{2}(\vecv, \vecl) \leq G_1(\vecv, \vecl)$, and if $G_1$ further establishes the correct projected area of visible micro-surfaces \cite{HeitzMicrofacet}
 \begin{equation}\label{eq:visible}
-  \avdot{\vecv}{\vecn} = \int_{\lbrace\vech \in \Omega_{\vecv}: \vdot{\vecv}{\vech} \geq 0\rbrace} D(\vech) G_1(\vecv, \text{reflect}(\vecv, \vech)) \vdot{\vecv}{\vech} d\vech.
+  \avdot{\vecv}{\vecn} = \int_{\lbrace\vech \in \Omega_{\vecv}: \vdot{\vecv}{\vech} \geq 0\rbrace} D(\vech) \,G_1(\vecv, \text{reflect}(\vecv, \vech)) \vdot{\vecv}{\vech} d\vech.
 \end{equation}
 Choices for $G_1$ with this property are the Smith masking function
 \begin{equation}
   G_1(\vecv, \vecl) = G_{1,\text{Smith}}(\vecv) = \frac{\avdot{\vecv}{\vecn}}{\int_{\lbrace\vech \in \Omega_{\vecv}: \vdot{\vecv}{\vech} \geq 0\rbrace} D(\vech) \vdot{\vecv}{\vech} d\vech},
 \end{equation}
-where analytic expressions are available for Beckmann and GGX distributions, and the v-cavity masking function
+where analytic expressions are available for Beckmann and GGX distributions, and the V-cavity masking function
 \begin{equation}
   G_1(\vecv, \vecl) = G_{1,\text{vc}}(\vdot{\vecv}{\vecn},\vdot{\vecn}{\vech},\vdot{\vecv}{\vech}) =
   \min\left\lbrace\frac{2\avdot{\vecv}{\vecn}\avdot{\vecn}{\vech}}{\avdot{\vecv}{\vech}}, 1\right\rbrace,
@@ -267,15 +277,15 @@ For refraction, we can construct a similar refraction back-vector $\vecbt(\vecv,
   \label{fig:backvector}
 \end{figure}
 
-As illustrated in Figure \ref{fig:backvector}, the reflection $\vecvv$ of the view direction $\vecv$ on the surface can also be interpreted as an reflection of the view direction on a plane aligned with $\vecv$ and perpendicular to the surface.
-Intuitively, this is equivalent of observing the microfacet reflection through a virtual mirror, thus turning glossy forward-reflection into glossy retro-reflection.
-While there is no immediate physical foundation to this construction, this interpretation can serve as motivation why components from the regular microfacet model still work when changing the domain to the back-vector.
-
+As illustrated in Figure \ref{fig:backvector}, the reflection $\vecvv$ of the view direction $\vecv$ on the surface can also be interpreted as a reflection of the view direction in a ``virtual'' plane aligned with $\vecv$ and perpendicular to the surface.
+Intuitively, this is equivalent to observing the microfacet reflection through a virtual mirror, thus turning glossy forward-reflection into glossy retro-reflection.
+While there is no immediate physical foundation to this construction, this interpretation can serve as a motivation why the components of the regular microfacet model still work on changing the domain to the back-vector.
+We now detail the mathematical consequences of using the back-vector as microfacet selector.
 
 \paragraph*{Jacobian of Back-Vector.}
-First we observe that Jacobian of the change of variable from the back-vector to the light vector $\vecl$ for specular microfacets~(Equation~(11) and~(14) of \citet{WalterMicrofacet}) has the same form as the half-vector one:
+First we observe that the Jacobian of the change of variable from the back-vector to the light vector $\vecl$ for specular microfacets~(Equation~(11) and~(14) of \citet{WalterMicrofacet}) has the same form as the half-vector one:
 \begin{equation}
-\left\lVert \dfrac{\partial \omega_{\vecb_{r}}}{\partial \omega_{\vecl}} \right\rVert = \left\lVert \dfrac{\partial \omega_{\vech_{r}(\vecvv, \vecl)}}{\partial \omega_{\vecl}} \right\rVert = \dfrac{1}{4 \left| \vdot{\vecl}{\vech(\vecvv, \vecl)} \right|} = \dfrac{1}{4 \left| \vdot{\vecl}{\vecb} \right|}
+\left\lVert \dfrac{\partial \omega_{\vecb_{r}}}{\partial \omega_{\vecl}} \right\rVert = \left\lVert \dfrac{\partial \omega_{\vech_{r}(\vecvv, \vecl)}}{\partial \omega_{\vecl}} \right\rVert = \dfrac{1}{4 \left| \vdot{\vecl}{\vech(\vecvv, \vecl)} \right|} = \dfrac{1}{4 \left| \vdot{\vecl}{\vecb} \right|} \ .
 \end{equation}
 We also observe that this is true for refractive microfacets~(Equation (17) of \citet{WalterMicrofacet}):
 \begin{equation}
@@ -283,9 +293,16 @@ We also observe that this is true for refractive microfacets~(Equation (17) of \
 \end{equation}
 This is due to the fact that we have to differentiate with respect to the light direction (which is not altered by the back vector).
 
+\begin{figure}[tbh]
+  \centering
+  \includegraphics[width=0.99\linewidth]{figures/brdf_plots.pdf}
+  \caption{Comparison of the retro-reflective MRM BRDF (blue) to the regular GGX microfacet BRDF (green) and rough-diffuse EON model (orange), as a function of view direction $\theta_o$ for fixed light directions $\theta_i \in {45^\circ, 80^\circ}$. The dashed lines are the roughness $0.1$ case, and the dashed lines roughness $0.666$. The grey horizontal line at $1/\pi$ is the Lambert BRDF.}
+  \label{fig:brdf_plots}
+\end{figure}
+
 \paragraph*{Microfacet reflection term.}
 There is experimental evidence~\cite{BelcourBackvector} that using a Fresnel term based on the back-vector can provide a good match to actual retro-reflective material measurements for a reflection back-vector based BRDF.
-As such, we update the formulation of $\rho(\vecv, \vecm)$~(Equation (11) of \citet{WalterMicrofacet}) to use the reflected view vector instead. It follows that the reflection microsurface BRDF~(Equation (15) of \citet{WalterMicrofacet}) becomes
+As such, we update the formulation of $\rho(\vecv, \vecm)$~(Equation (11) of \citet{WalterMicrofacet}) to use the reflected view vector instead. From the aforementioned equivalence of the Jacobians, it follows that the reflection microsurface BRDF~(Equation (15) of \citet{WalterMicrofacet}) becomes
 \begin{equation}
   f_r^m(\vecv, \vecl, \vecm) = F(\vecvv, \vecm) \dfrac{\delta(\vecb_r, \vecm) }{4 \left| \vdot{\vecvv}{\vecb_r} \right|^2}.
 \end{equation}
@@ -302,7 +319,7 @@ For v-cavities masking, we take $\vecvv$ as view direction and, consequently, $\
 %todo{Laurent: I think we could extract the shadowing from Matthias derivation here. The other way to justify the derivation of the full model is to highlight that Smith's shadowing/masking does not depend on the microfacet (appart from the sideness). Hence, whatever the microfacet selector (as long as the sideness matches), the shadowing/masking is the same. Since $\vecv$ and $\vecvv$ share the same slope, we can exchange them in the equation.}
 
 \paragraph*{Final form.}
-The final retro-reflective microfacet model can be written as
+It follows from all this that the final retro-reflective microfacet model can be written simply as
 \begin{equation} \label{eq:retro_microfacet_model}
   %  f_\text{retro}(\vecv, \vecl) = f(\vecvv, \vecl) = \frac{D(\vecb) \, G_{2}(\vecvv,\vecl) \, F(\vecvv, \vecb)}{4 \vdot{\vecvv}{\vecn} \vdot{\vecl}{\vecn}}
   f_\text{retro}(\vecv, \vecl) =
@@ -314,6 +331,12 @@ The final retro-reflective microfacet model can be written as
 In the following section we show in detail that this model is plausible, i.e. that symmetry and energy conservation requirements are fulfilled.
 Note that for this we impose one technical assumption on $D$:
 we require that the microfacet normal distribution is reflection-symmetric around the normal (which is the case for all isotropic distributions and for anisotropic Phong, Beckmann, and GGX).
+
+Figure~\ref{fig:brdf_plots} plots the BRDF values of the MRM model (green) compared to the rough diffuse (albedo 1) EON model \cite{Portsmouth2025EON} (orange) and GGX (blue). For both MRM and GGX, the Fresnel factor is set to 1.
+The $0.1$ roughness case is a very strong, tight peak (note the logarithmic scale on the y-axis), while the $0.666$ roughness case is a much broader peak.
+It is evident that MRM BRDF is the same as GGX,with the peak flipped to be back-scattering (at exactly $\theta_o =-\theta_i$, $\phi_o = \phi_i$).
+The $\phi_o = 45^\circ$ case demonstrates the situation when the view direction is not aligned in the same azimuthal plane. In this case. both GGX and MRM are dimmer than Lambert or EON, which compensates for the extra energy of the peaks of MRM and GGX (in which almost all of the energy is concentrated, in the reflection or retro-reflection direction respectively for GGX and MRM).
+
 
 \section{Plausibility of the Back-vector Modification}
 
@@ -334,7 +357,7 @@ For the reflection back-vector we show $\vechr(\vecvv, \vecl) = \text{reflect}\l
   \left(-\vecv + 2 \vdot{\vecv}{\vecn} \vecn \right) + \vecl \\
   &= \left(-\vecv + 2 \vdot{\vecv}{\vecn} \vecn \right) + \left(- \vecll + 2 \vdot{\vecll}{\vecn} \vecn \right)\\
   &= -(\vecll + \vecv) + 2 \vdot{(\vecll + \vecv)}{\vecn} \vecn =
-  \text{reflect}(\vecll + \vecv, \vecn)
+  \text{reflect}(\vecll + \vecv, \vecn) \ .
   \end{split}
 \end{equation}
 and therefore $\lVert \vecvv + \vecl \rVert = \lVert \vecll + \vecv \rVert$ as well.
@@ -345,7 +368,7 @@ Similarly, for refraction we have
   \etav\left(-\vecv + 2 \vdot{\vecv}{\vecn} \vecn \right) + \etal\vecl \\
   &= \etav\left(-\vecv + 2 \vdot{\vecv}{\vecn} \vecn \right) + \etal\left(- \vecll + 2 \vdot{\vecll}{\vecn} \vecn \right)\\
   &= -(\etal\vecll + \etav\vecv) + 2 \vdot{(\etal\vecll + \etav\vecv)}{\vecn} \vecn =
-  \text{reflect}(\etal\vecll + \etav\vecv, \vecn)
+  \text{reflect}(\etal\vecll + \etav\vecv, \vecn) \ .
   \end{split}
 \end{equation}
 which implies $\lVert \etav\vecvv + \etal\vecl \rVert = \lVert \etal\vecll + \etal\vecv \rVert$ and
@@ -354,15 +377,19 @@ From that we can conclude
 \begin{equation}\label{eq:nh}
   \begin{split}
     \vdot{\vecn}{\vech(\vecvv, \vecl)} &=
-    \vdot{\vecn}{\vech(\vecll, \vecv)}\\
+    \vdot{\vecn}{\vech(\vecll, \vecv)}  \ , \\
     \vdot{\mathbf{t_1}}{\vech(\vecvv, \vecl)} &=
-    -\vdot{\mathbf{t_1}}{\vech(\vecll, \vecv)}\\
+    -\vdot{\mathbf{t_1}}{\vech(\vecll, \vecv)} \ , \\
     \vdot{\mathbf{t_2}}{\vech(\vecvv, \vecl)} &=
     -\vdot{\mathbf{t_2}}{\vech(\vecll, \vecv)}\\
     \end{split}
 \end{equation}
 for both reflection ($\vech = \vechr$) and refraction ($\vech = \vecht$) cases.
-As $D$ is reflection-symmetric around the normal, i.e. it takes the form $D(\vech) = D\left(\avdot{\vecn}{\vech}, \lvert \vdot{\mathbf{t_1}}{\vech} \rvert, \lvert \vdot{\mathbf{t_2}}{\vech} \rvert\right)$, we can thus infer that using it with a back-vector obeys symmetry.
+Since we assumed $D$ is reflection-symmetric around the normal, i.e. it takes the form
+\begin{equation}
+D(\vech) = D\left(\avdot{\vecn}{\vech}, \lvert \vdot{\mathbf{t_1}}{\vech} \rvert, \lvert \vdot{\mathbf{t_2}}{\vech} \rvert\right)
+\end{equation}
+we can thus infer that using it with a back-vector obeys symmetry.
 Further, the reflection symmetry of $D$ along with Equation \eqref{eq:nk} gives
 \begin{equation}
   \begin{split}
@@ -398,7 +425,7 @@ as well as
 \end{equation}
 As the Fresnel term takes the form $F(\vecx, \vecy) = F\left(\vdot{\vecx}{\vecy}\right)$, we can conclude
   \begin{equation}
-    F\left((\vecvv, \vech(\vecvv, \vecl)\right) = F\left(\vdot{\vecvv}{\vech(\vecvv, \vecl)}\right) =
+    F\left(\vecvv, \vech(\vecvv, \vecl)\right) = F\left(\vdot{\vecvv}{\vech(\vecvv, \vecl)}\right) =
     F\left(\vdot{\vecll}{\vech(\vecll,\vecv)}\right) = F\left(\vecll, \vech(\vecll,\vecv)\right).
 \end{equation}
 Further, using Equations \eqref{eq:khr} and \eqref{eq:kht} along with Equations \eqref{eq:nh} and \eqref{eq:nk} und using $\vech(\vecx,\vecy) = \vech(\vecy,\vecx)$ we get
@@ -411,8 +438,8 @@ Further, using Equations \eqref{eq:khr} and \eqref{eq:kht} along with Equations 
   &= G_1(\vecv, \vecll)
   \end{split}
 \end{equation}
-and similarly $G_1(\vecl, \vecvv) = G_1(\vecll, \vecv)$ for the v-cavity masking function.
-In summary, we can conclude the symmetry of the BRDF
+and similarly $G_1(\vecl, \vecvv) = G_1(\vecll, \vecv)$ for the V-cavity masking function.
+In summary, we can conclude the reciprocity symmetry of the BRDF
 \begin{equation}
   \begin{split}
   f_{r,\text{retro}}(\vecv, \vecl) =
@@ -425,7 +452,7 @@ In summary, we can conclude the symmetry of the BRDF
   f_{r,\text{retro}}(\vecl, \vecv).
   \end{split}
 \end{equation}
-Analogously, we obtain the symmetry requirement of the BTDF
+Analogously, we obtain the reciprocity symmetry requirement of the BTDF
 \begin{equation}
   \begin{split}
     &f_{t,\text{retro}}(\vecv, \vecl)
@@ -439,7 +466,7 @@ Analogously, we obtain the symmetry requirement of the BTDF
     \frac{\etav^2}{\etal^2}f_{t,\text{retro}}(\vecl, \vecv).
   \end{split}
 \end{equation}
-For the albedo we simply have
+For the directional albedos we simply have
 \begin{equation}
   \begin{split}
   \rho_{r, \text{retro}}(\vecv) =
@@ -466,10 +493,11 @@ We further note that under our requirement of a reflection-symmetric microfacet 
 configurations for $\vecv$ and $\vecvv$ are identical.
 Hence we can conclude $\rho_r(\vecv) = \rho_r(\vecvv)$ and $\rho_t(\vecv) = \rho_t(\vecvv)$, which in turn implies that the albedos of forward and retro-reflection are the same, i.e. $\rho_{r, \text{retro}}(\vecv) = \rho_r(\vecv)$ and $\rho_{t, \text{retro}}(\vecv) = \rho_t(\vecv)$.
 
+
 \section{Implementation Notes}
 \label{sec:implementation}
 
-Given an implementation of a regular microfacet BSDF, extending it to retro-reflection is straightforward:
+Given an implementation of a regular microfacet BSDF, extending it to retro-reflection is extremely straightforward:
 
 \begin{itemize}
 \item
@@ -482,8 +510,9 @@ Given an implementation of a regular microfacet BSDF, extending it to retro-refl
 \item Pseudo-code is provided in Listing~\ref{lst:implementation}.
 \end{itemize}
 
-\noindent\begin{minipage}[tb]{\linewidth}
+\noindent
 \begin{lstlisting}[
+    style=snippet,
     language=GLSL,
     caption=Pseudo code to implement the retro-reflective microfacet model using existing regular microfacet BSDF implementation,
     label=lst:implementation,
@@ -500,16 +529,61 @@ Eval_result eval_bsdf_retro(vec3 V, vec3 L, vec3 N, Bsdf_params params)
     vec3 Vp = -V + 2.0 * dot(V, N) * N;
     return eval_bsdf(V, L, N, params);
 }
-
 \end{lstlisting}
-\end{minipage}
+
+\section{Results and Discussion}
+
+\label{sec:results}
+
+\paragraph*{Incorporation in a standard microfacet model}
+
+Figure~\ref{fig:conductor_renders} shows renders of a shaderball with either a classic GGX or retro-reflective MRM material applied, here assuming \emph{conducting} (i.e. metallic) microfacets.
+
+\begin{figure}[!b]
+    \centering
+    \includegraphics[width=0.3\linewidth]{figures/conductor/cropped/classic_angle_0_cropped.png}
+    \includegraphics[width=0.3\linewidth]{figures/conductor/cropped/classic_angle_45_cropped.png}
+    \includegraphics[width=0.3\linewidth]{figures/conductor/cropped/classic_angle_90_cropped.png} \\
+    \vspace{0.06cm}
+    \includegraphics[width=0.3\linewidth]{figures/conductor/cropped/retro_angle_0_cropped.png}
+    \includegraphics[width=0.3\linewidth]{figures/conductor/cropped/retro_angle_45_cropped.png}
+    \includegraphics[width=0.3\linewidth]{figures/conductor/cropped/retro_angle_90_cropped.png}
+  \caption{Renders of a metallic shaderball with either a classic GGX (top row) or retro-reflective MRM material (bottom row) applied, for various camera angles and a fixed light direction. The relative angle between the view and light direction is $0^\circ$ (left), $45^\circ$ (middle), and $90^\circ$ (right).}
+  \label{fig:conductor_renders}
+\end{figure}
+
 
 \paragraph*{Combination of BRDF and BTDF}
 
-The albedo is identical for forward- and retro-reflective BRDF as well as BTDF,
-which allows to arbitrarily combine forward- and retro-reflective variants into a BSDF.
+The albedo is identical for forward- and retro-reflective BRDF as well as BTDF, which allows to arbitrarily combine forward- and retro-reflective variants into a BSDF.
 When constructing an artist-controllable retro-reflective dielectric BSDF, we observed that using $f_t$ instead of $f_{t, \text{retro}}$ yields more intuitive results, in particular for an index of refraction close to 1.
 
+Figure~\ref{fig:dielectric_renders} demonstrates this in renders of a dielectric shaderball, where the IOR of the dielectric material is either $1.0$ (top row) or $1.5$ (bottom row).
+Left to right we show three combinations of BRDF and BTDF: the classic microfacet BSDF $f_r$ and BTDF $f_t$ (left), the retro-reflective BRDF $f_{r,\text{retro}}$ plus retro-reflective BTDF $f_{t,\text{retro}}$ (middle), and retro-reflective BRDF $f_{r,\text{retro}}$ combined with the classic (non-retroreflective) BTDF $f_t$ (right).
+\begin{figure}[!tb]
+    \centering
+    \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/classic_ior_1_cropped_label.png }
+    \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroRT_ior_1_cropped_label.png }
+    \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroR_ior_1_cropped_label.png } \\
+    \vspace{0.06cm}
+    \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/classic_ior_1.5_cropped_label.png }
+    \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroRT_ior_1.5_cropped_label.png}
+    \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroR_ior_1.5_cropped_label.png }
+  \caption{Renders of a glass shaderball illuminated from the side. The index of refraction is $1.0$ (top) or $1.5$ (bottom). From left to right: classic microfacet BSDF (left), retro-reflective BSDF (middle), and combined retro-reflective BRDF and classic BTDF (right).  }
+  \label{fig:dielectric_renders}
+\end{figure}
+
+
+\section{Conclusion}
+
+We have presented a retro-reflective microfacet model (MRM) based on a simple modification of the classic microfacet BSDF.
+The model is straightforward to implement in existing renderers supporting microfacet BSDFs, as it only requires reflecting the view direction about the surface normal before evaluating the standard microfacet model.
+We have shown that the model fulfills symmetry and energy conservation requirements, making it a plausible microfacet model.
+The retro-reflective microfacet model can be used to represent materials with strong retro-reflective properties, such as certain fabrics or retro-reflective coatings.
+
+
+\paragraph{Further work.}
+For future work it would be interesting to further validate the MRM retro-reflective microfacet model against measured retro-reflective materials.
 
 
 \bibliographystyle{jcgt}
