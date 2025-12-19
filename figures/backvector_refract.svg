@@ -24,9 +24,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="0.90509668"
-     inkscape:cx="44.194174"
-     inkscape:cy="136.44951"
+     inkscape:zoom="1.28"
+     inkscape:cx="-67.1875"
+     inkscape:cy="113.28125"
      inkscape:window-width="1918"
      inkscape:window-height="1178"
      inkscape:window-x="0"
@@ -686,12 +686,12 @@
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.265;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend-2)"
-       d="M 79.40976,115.30362 77.562032,96.126704"
+       d="M 79.671235,115.50152 75.284431,96.74188"
        id="path4714-5-1"
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.264583;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-start:url(#Arrow2Mstart)"
-       d="M 67.735429,97.285783 79.40976,115.30362"
+       d="M 67.735429,97.285783 79.671235,115.50152"
        id="path4714-5-3"
        sodipodi:nodetypes="cc" />
     <text
@@ -791,11 +791,11 @@
          y="71.219795">n</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.265;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend-27-8)"
-       d="m 79.40976,115.30362 3.695478,19.47599"
+       d="m 79.671235,115.50152 7.79802,18.22528"
        id="path4714-5-9-3"
        sodipodi:nodetypes="cc"
-       inkscape:transform-center-x="10.613375"
-       inkscape:transform-center-y="5.9040812" />
+       inkscape:transform-center-x="9.095075"
+       inkscape:transform-center-y="8.0486972" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
