@@ -30,7 +30,7 @@
 \submitted{\today}
 
 % Once an article is accepted accepted, switch to the following line and comment the preceding one. The editor will supply the argument values.
-\accepted{yyyy-mm-dd}{yyyy-mm-dd}{yyyy-mm-dd}{Editor Name}{volume}{issue}{1}{6}{yyyy}
+%\accepted{yyyy-mm-dd}{yyyy-mm-dd}{yyyy-mm-dd}{Editor Name}{volume}{issue}{1}{6}{yyyy}
 \seturl{http://jcgt.org/published/vol/issue/num/}
 \newcommand{\vecv}{\mathbf{v}}
 \newcommand{\vecvv}{\mathbf{v'}}
@@ -56,7 +56,6 @@
 %\newcommand{\vdot}[2]{#1\cdot#2}
 \newcommand{\avdot}[2]{\lvert\vdot{#1}{#2}\rvert}
 
-\newcommand{\todo}[1]{{\color{red}\textbf{[TODO:} #1\textbf{]}}}
 \newcommand{\laurent}[1]{{\color{blue}\textbf{[Laurent:} #1\textbf{]}}}
 
 \includecomment{introduction}
@@ -141,7 +140,6 @@
 
 \begin{document}
 
-
 \title{The Minimal Retroreflective Microfacet Model}
 
 \author{Matthias Raab\\NVIDIA
@@ -159,13 +157,13 @@
     \includegraphics[width=0.3\linewidth]{figures/cone/retro_cone_cropped_label.png}
     \includegraphics[width=0.3\linewidth]{figures/jacket/retro_jacket_cropped_label.png}
     \includegraphics[width=0.3\linewidth]{figures/shoe/retro_shoe_cropped_label.png}
-  \caption{Comparison of our ``Minimal Retroreflective Microfacet'' (MRM) retroreflector model (bottom row) obtained by an almost trivial modification of the equivalent roughness GGX microfacet model (top row). The lighting in all cases is aligned with the view direction, exhibiting a strong retro-reflective peak.}
+  \caption{Comparison of our ``Minimal Retroreflective Microfacet'' (MRM) retroreflector model (bottom row) obtained by an almost trivial modification of the equivalent roughness GGX microfacet model (top row). The lighting in all cases is aligned with the view direction, exhibiting a strong retro-reflective peak in the MRM model.}
    \vspace{-0.5cm}
   \label{fig:teaser}
 }
 
 \maketitle
-\thispagestyle{firstpagestyle}
+%\thispagestyle{firstpagestyle}
 
 \begin{abstract}
   \small
@@ -176,10 +174,11 @@
 
 Rendering of retro-reflective materials is useful in a variety of contexts. For safety applications such as road markings, signs, vehicles and high-visibility clothing items, retroreflective materials are heavily used (see Figure~\ref{fig:teaser} for some examples). Such materials are typically designed to be retroreflective via a substructure of elements which preferentially scatter light backwards. A number of CG models have been proposed to model retro-reflective materials, but typically they are either not energy-conserving, not easily integrated into existing rendering systems, or too complex to be practical for production use.
 
-For practical purposes in visual effects, we are interested in a model which is a) visually plausible at least and follows measured observations, b) provably energy-conserving, c) efficient and easy to implement, ideally a small modification to well-understood surface models. We present here a model based on the previously published ``back-vector'' formulation~\cite{BelcourBackvector} which meets these requirements. It is so simple a modification to a regular microfacet model, that we term it the ``Minimal Retroreflective Microfacet'' (MRM) model which achieves a plausible retro-reflective result.
+For practical purposes in visual effects, we are interested in a model which is a) visually plausible at least and ideally follows measured observations reasonably well, b) provably energy-conserving, c) efficient and easy to implement, ideally a small modification to well-understood surface models. We present here a model based on the previously published ``back-vector'' formulation~\cite{BelcourBackvector} which meets all these requirements. It is so simple a modification to a regular microfacet model, that we term it the ``Minimal Retroreflective Microfacet'' (MRM) model which achieves a plausible retro-reflective result.
+
 
 \paragraph{Previous works.}
-Modeling of retro-reflectivity in the surface scattering function has received little attention so far. For example, \citet{Guo2017Retro} proposed a model to incorporate the retro-reflectivity of prismatic sheets. However, their model only provides pure retro-reflection which would lack artistic control. They later extented this model to account for imperfect retro-reflection with the addition of a microfacet surface (following Beckmann's normal distribution) above the prismatic sheet~\citet{Guo2018Retro}. However, due to the coupling of retro-reflection and rough refraction, they were unable to derive a close form solution for it and relied on fitting of the ground truth model.
+Modeling of retro-reflectivity in the surface scattering function has received little attention so far. For example, \citet{Guo2017Retro} proposed a model to incorporate the retro-reflectivity of prismatic sheets. However, their model only provides pure retro-reflection which would lack artistic control. They later extended this model to account for imperfect retro-reflection with the addition of a microfacet surface (following Beckmann's normal distribution) above the prismatic sheet~\citet{Guo2018Retro}. However, due to the coupling of retro-reflection and rough refraction, they were unable to derive a close form solution for it and relied on fitting of the ground truth model.
 
 \paragraph{Our model.} In this document, we present a model based on the previously published ``back-vector'' formulation~\cite{BelcourBackvector} which meets production requirements. It is also a simple modification to a regular microfacet model, that we term it the ``Minimal Retroreflective Microfacet'' (MRM) model which achieves a plausible retro-reflective result.
 
@@ -242,7 +241,7 @@ In this work, we show that we can use the back vector~\cite{BelcourBackvector} a
 The shadowing-masking function combines the visibility masking function $G_1(\vecv, \vech)$ for view direction and
 $G_1(\vecl, \vech)$ for light direction:
 \begin{equation}
-G_{2}(\vecv, \vecl) = G_1(\vecv, \vech) \time G_1(\vecl, \vech)\ .
+G_{2}(\vecv, \vecl) = G_1(\vecv, \vech) \times G_1(\vecl, \vech)\ .
 \end{equation}
 Mathematically, the BSDF is plausible if $G_{2}$ is symmetric w.r.t. to exchanging $\vecv$ and $\vecl$, fulfills
 $G_{2}(\vecv, \vech) \leq G_1(\vecv, \vecl)$, and if $G_1$ further establishes the correct projected area of visible micro-surfaces \cite{HeitzMicrofacet}
@@ -318,7 +317,7 @@ Similarly, for the transmissive microsurfacet BTDF (Equation~(18) of \citet{Walt
 We simply apply Smith or v-cavities masking to the mirrored microfacet distribution.
 With Smith masking, this is actually identical to a regular microfacet BSDF, as $\vecvv$ and $\vecv$ share the same geometric configuration.
 For v-cavities masking, we take $\vecvv$ as view direction and, consequently, $\vecb$ as microfacet normal.
-%todo{Laurent: I think we could extract the shadowing from Matthias derivation here. The other way to justify the derivation of the full model is to highlight that Smith's shadowing/masking does not depend on the microfacet (appart from the sideness). Hence, whatever the microfacet selector (as long as the sideness matches), the shadowing/masking is the same. Since $\vecv$ and $\vecvv$ share the same slope, we can exchange them in the equation.}
+%\todo{\tiny Laurent: I think we could extract the shadowing from Matthias derivation here. The other way to justify the derivation of the full model is to highlight that Smith's shadowing/masking does not depend on the microfacet (appart from the sideness). Hence, whatever the microfacet selector (as long as the sideness matches), the shadowing/masking is the same. Since $\vecv$ and $\vecvv$ share the same slope, we can exchange them in the equation.}
 
 \paragraph*{Final form.}
 It follows from all this that the final retro-reflective microfacet model can be written simply as
