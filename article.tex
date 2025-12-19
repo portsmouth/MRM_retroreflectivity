@@ -17,6 +17,10 @@
 \usepackage{comment}
 \usepackage{natbib}
 \usepackage[font={small,it}]{caption}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+
+\usepackage[export]{adjustbox}
 
 \setciteauthor{Matthias Raab and Laurent Belcour and Frankie Liu and Jamie Portsmouth}
 \setcitetitle{The Minimal Retroreflective Microfacet Model (MRM)}
@@ -289,7 +293,7 @@ We also observe that this is true for refractive microfacets~(Equation (17) of \
 \begin{equation}
 \left\lVert \dfrac{\partial \omega_{\vecb_{t}}}{\partial \omega_{\vecl}} \right\rVert = \left\lVert \dfrac{\partial \omega_{\vech_{t}(\vecvv, \vecl)}}{\partial \omega_{\vecl}} \right\rVert = \dfrac{  \eta_o^2 \left| \vecl, \vech_{t}(\vecvv, \vecl)  \right|}{ \left\lVert \vech_{t}(\vecvv, \vecl) \right\rVert^2}
 \end{equation}
-This is due to the fact that we have to differentiate with respect to the light direction (which is not altered by the back vector).
+This is due to the fact that we have to differentiate with respect to the light direction which is not altered by the back vector.
 
 \begin{figure}[tbh]
   \centering
@@ -562,17 +566,36 @@ Left to right we show three combinations of BRDF and BTDF: the classic microface
 \end{figure}
 
 \begin{figure}[!hb]
-    \centering
-    \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/classic_ior_1_cropped_label.png }
-    \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroRT_ior_1_cropped_label.png }
-    \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroR_ior_1_cropped_label.png } \\
-    \vspace{0.06cm}
-    \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/classic_ior_1.5_cropped_label.png }
-    \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroRT_ior_1.5_cropped_label.png}
-    \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroR_ior_1.5_cropped_label.png }
+  \centering
+  \begin{tikzpicture}[font=\footnotesize]
+    \node[inner sep=1pt] (Class1) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/classic_ior_1_cropped_label.png }};
+    \node[inner sep=1pt,right = 0cm of Class1] (MRM1) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/retroRT_ior_1_cropped_label.png }};
+    \node[inner sep=1pt,right = 0cm of MRM1] (Mixed1) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/retroR_ior_1_cropped_label.png }};
+
+    \node[inner sep=1pt,below = 0cm of Class1] (Class15) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/classic_ior_1.5_cropped_label.png }};
+    \node[inner sep=1pt,right = 0cm of Class15] (MRM15) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/retroRT_ior_1.5_cropped_label.png }};
+    \node[inner sep=1pt,right = 0cm of MRM15] (Mixed15) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/retroR_ior_1.5_cropped_label.png }};
+
+    \node[inner sep=1pt,above = 2pt of Class1] { \textbf{Classical Microfacet} };
+    \node[inner sep=1pt,above = 2pt of MRM1] { \textbf{Full retro-reflective MRM} };
+    \node[inner sep=1pt,above = 11.5pt of Mixed1] { \textbf{Mixed MRM (BRDF)} };
+    \node[inner sep=1pt,above = 0.5pt of Mixed1] { \textbf{and Classical (BTDF)} };
+
+    \node[inner sep=1pt,left = 1pt of Class1, anchor=south,rotate=90] { $\mathbf{\boldsymbol{\eta} = 1}$ };
+    \node[inner sep=1pt,left = 1pt of Class15, anchor=south,rotate=90] { $\mathbf{\boldsymbol{\eta} = 1.5}$ };
+  \end{tikzpicture}
+
+    % \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/classic_ior_1_cropped_label.png }
+    % \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroRT_ior_1_cropped_label.png }
+    % \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroR_ior_1_cropped_label.png } \\
+    % \vspace{0.06cm}
+    % \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/classic_ior_1.5_cropped_label.png }
+    % \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroRT_ior_1.5_cropped_label.png}
+    % \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroR_ior_1.5_cropped_label.png }
   \caption{Renders of a glass shaderball illuminated from the side. The index of refraction is $1.0$ (top) or $1.5$ (bottom). From left to right: classic microfacet BSDF (left), retro-reflective BSDF (middle), and combined retro-reflective BRDF and classic BTDF (right).  }
   \label{fig:dielectric_renders}
 \end{figure}
+
 
 
 \section{Conclusion}
