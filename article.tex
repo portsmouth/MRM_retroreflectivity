@@ -242,20 +242,20 @@ In this work, we show that we can use the back vector~\cite{BelcourBackvector} a
 The shadowing-masking function combines the visibility masking function $G_1(\vecv, \vecl)$ for view direction and
 $G_1(\vecl, \vecv)$ for light direction:
 \begin{equation}
-G_{2}(\vecv, \vecl) = G_{2}\left(G_1(\vecv, \vecl), G_1(\vecl, \vecv) \right) \ .
+G_{2}(\vecv, \vecl) = G_{2}\left(G_1(\vecv, \vech), G_1(\vecl, \vech) \right) \ .
 \end{equation}
 Mathematically, the BSDF is plausible if $G_{2}$ is symmetric w.r.t. to exchanging $\vecv$ and $\vecl$, fulfills
-$G_{2}(\vecv, \vecl) \leq G_1(\vecv, \vecl)$, and if $G_1$ further establishes the correct projected area of visible micro-surfaces \cite{HeitzMicrofacet}
+$G_{2}(\vecv, \vech) \leq G_1(\vecv, \vecl)$, and if $G_1$ further establishes the correct projected area of visible micro-surfaces \cite{HeitzMicrofacet}
 \begin{equation}\label{eq:visible}
-  \avdot{\vecv}{\vecn} = \int_{\lbrace\vech \in \Omega_{\vecv}: \vdot{\vecv}{\vech} \geq 0\rbrace} D(\vech) \,G_1(\vecv, \text{reflect}(\vecv, \vech)) \vdot{\vecv}{\vech} d\vech.
+  \avdot{\vecv}{\vecn} = \int_{\lbrace\vech \in \Omega_{\vecv}: \vdot{\vecv}{\vech} \geq 0\rbrace} D(\vech) \,G_1(\vecv, \vech) \vdot{\vecv}{\vech} d\vech.
 \end{equation}
 Choices for $G_1$ with this property are the Smith masking function
 \begin{equation}
-  G_1(\vecv, \vecl) = G_{1,\text{Smith}}(\vecv) = \frac{\avdot{\vecv}{\vecn}}{\int_{\lbrace\vech \in \Omega_{\vecv}: \vdot{\vecv}{\vech} \geq 0\rbrace} D(\vech) \vdot{\vecv}{\vech} d\vech},
+  G_1(\vecv, \vech) = G_{1,\text{Smith}}(\vecv) = \frac{\avdot{\vecv}{\vecn}}{\int_{\lbrace\vech \in \Omega_{\vecv}: \vdot{\vecv}{\vech} \geq 0\rbrace} D(\vech) \vdot{\vecv}{\vech} d\vech},
 \end{equation}
 where analytic expressions are available for Beckmann and GGX distributions, and the V-cavity masking function
 \begin{equation}
-  G_1(\vecv, \vecl) = G_{1,\text{vc}}(\vdot{\vecv}{\vecn},\vdot{\vecn}{\vech},\vdot{\vecv}{\vech}) =
+  G_1(\vecv, \vech) = G_{1,\text{vc}, \vech}(\vdot{\vecv}{\vecn},\vdot{\vecn}{\vech},\vdot{\vecv}{\vech}) =
   \min\left\lbrace\frac{2\avdot{\vecv}{\vecn}\avdot{\vecn}{\vech}}{\avdot{\vecv}{\vech}}, 1\right\rbrace,
 \end{equation}
 which is generally applicable for distributions with symmetry around the normal.
@@ -395,10 +395,10 @@ we can thus infer that using it with a back-vector obeys symmetry.
 Further, the reflection symmetry of $D$ along with Equation \eqref{eq:nk} gives
 \begin{equation}
   \begin{split}
-  G_{1,\text{Smith}}(\vecv) &=
+  G_{1,\text{Smith}}(\vecv, \vech) &=
   \frac{\avdot{\vecv}{\vecn}}{\int_{\lbrace\vech \in \Omega_{\vecv}: \vdot{\vecv}{\vech} \geq 0\rbrace} D(\vech) \vdot{\vecv}{\vech} d\vech} \\
   &= \frac{\avdot{\vecvv}{\vecn}}{\int_{\lbrace\vech \in \Omega_{\vecvv}: \vdot{\vecvv}{\vech} \geq 0\rbrace} D(\vech) \vdot{\vecvv}{\vech} d\vech} =
-  G_{1,\text{Smith}}(\vecvv)
+  G_{1,\text{Smith}}(\vecvv, \vech)
   \end{split}
 \end{equation}
 for Smith-masking. Next we show
@@ -430,7 +430,7 @@ As the Fresnel term takes the form $F(\vecx, \vecy) = F\left(\vdot{\vecx}{\vecy}
     F\left(\vecvv, \vech(\vecvv, \vecl)\right) = F\left(\vdot{\vecvv}{\vech(\vecvv, \vecl)}\right) =
     F\left(\vdot{\vecll}{\vech(\vecll,\vecv)}\right) = F\left(\vecll, \vech(\vecll,\vecv)\right).
 \end{equation}
-Further, using Equations \eqref{eq:khr} and \eqref{eq:kht} along with Equations \eqref{eq:nh} and \eqref{eq:nk} und using $\vech(\vecx,\vecy) = \vech(\vecy,\vecx)$ we get
+Getting back to the geometry term, we first note that we can rewrite $G_1(\vecv, \vech)$ as $G_1(\vecv, \vech(\vecv, \vecl))$. For ease, we write $G_1(\vecv, \vecl) = G_1(\vecv, \vech)$, and $G_1(\vecl, \vecv) = G_1(\vecl, \vech)$. It follows that using Equations \eqref{eq:khr} and \eqref{eq:kht} along with Equations \eqref{eq:nh} and \eqref{eq:nk} und using $\vech(\vecx,\vecy) = \vech(\vecy,\vecx)$ we get
 \begin{equation}
   \begin{split}
   G_1(\vecvv, \vecl) &=
