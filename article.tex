@@ -239,8 +239,8 @@ In Section~4.1 and Section~4.2 of their work, Walter et al.~\cite{WalterMicrofac
 In this work, we show that we can use the back vector~\cite{BelcourBackvector} as a microfacet selector to model retro-reflection. Before detailing the impact of such a change, we review some properties of microfacet models.
 
 \paragraph*{Shadowing-Masking.}
-The shadowing-masking function combines the visibility masking function $G_1(\vecv, \vecl)$ for view direction and
-$G_1(\vecl, \vecv)$ for light direction:
+The shadowing-masking function combines the visibility masking function $G_1(\vecv, \vech)$ for view direction and
+$G_1(\vecl, \vech)$ for light direction:
 \begin{equation}
 G_{2}(\vecv, \vecl) = G_{2}\left(G_1(\vecv, \vech), G_1(\vecl, \vech) \right) \ .
 \end{equation}
@@ -430,7 +430,7 @@ As the Fresnel term takes the form $F(\vecx, \vecy) = F\left(\vdot{\vecx}{\vecy}
     F\left(\vecvv, \vech(\vecvv, \vecl)\right) = F\left(\vdot{\vecvv}{\vech(\vecvv, \vecl)}\right) =
     F\left(\vdot{\vecll}{\vech(\vecll,\vecv)}\right) = F\left(\vecll, \vech(\vecll,\vecv)\right).
 \end{equation}
-Getting back to the geometry term, we first note that we can rewrite $G_1(\vecv, \vech)$ as $G_1(\vecv, \vech(\vecv, \vecl))$. For ease, we write $G_1(\vecv, \vecl) = G_1(\vecv, \vech)$, and $G_1(\vecl, \vecv) = G_1(\vecl, \vech)$. It follows that using Equations \eqref{eq:khr} and \eqref{eq:kht} along with Equations \eqref{eq:nh} and \eqref{eq:nk} und using $\vech(\vecx,\vecy) = \vech(\vecy,\vecx)$ we get
+Getting back to the geometry term, we first note that we can rewrite $G_1(\vecv, \vech)$ as $G_1(\vecv, \vech(\vecv, \vecl))$. For ease, we change the notation to $G_1(\vecv, \vecl)$ instead of $G_1(\vecv, \vech)$, and $G_1(\vecl, \vecv)$ instead of $G_1(\vecl, \vech)$. It follows that using Equations \eqref{eq:khr} and \eqref{eq:kht} along with Equations \eqref{eq:nh} and \eqref{eq:nk} und using $\vech(\vecx,\vecy) = \vech(\vecy,\vecx)$ we get
 \begin{equation}
   \begin{split}
   G_1(\vecvv, \vecl) &=
