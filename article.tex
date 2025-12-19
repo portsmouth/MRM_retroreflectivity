@@ -523,12 +523,12 @@ Given an implementation of a regular microfacet BSDF, extending it to retro-refl
 Sample_result sample_bsdf_retro(vec3 V, vec3 L, vec3 N, Bsdf_params params)
 {
     vec3 Vp = -V + 2.0 * dot(V, N) * N;
-    return sample_bsdf(V, L, N, params);
+    return sample_bsdf(Vp, L, N, params);
 }
 Eval_result eval_bsdf_retro(vec3 V, vec3 L, vec3 N, Bsdf_params params)
 {
     vec3 Vp = -V + 2.0 * dot(V, N) * N;
-    return eval_bsdf(V, L, N, params);
+    return eval_bsdf(Vp, L, N, params);
 }
 \end{lstlisting}
 
