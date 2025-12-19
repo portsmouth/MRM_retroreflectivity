@@ -1,0 +1,25 @@
+BRDF profiling results:
+
+No-op total time: 1700.48 milliseconds
+Lambert total time: 1698.65 milliseconds
+Full ON total time: 31940.9 milliseconds
+QON total time: 5332.59 milliseconds
+Footnote QON total time: 5334.64 milliseconds
+Fujii QON total time: 5851.07 milliseconds
+FON total time: 4600.35 milliseconds
+EON (exact) total time: 17069.2 milliseconds
+EON (approx) total time: 9659.13 milliseconds
+
+BRDF profiling results adjusted for no-op baseline:
+
+No-op total time: 0 milliseconds
+Lambert total time: -1.83028 milliseconds
+Full ON total time: 30240.4 milliseconds
+QON total time: 3632.11 milliseconds
+Footnote QON total time: 3634.16 milliseconds
+Fujii QON total time: 4150.59 milliseconds
+FON total time: 2899.87 milliseconds
+EON (exact) total time: 15368.7 milliseconds
+EON (approx) total time: 7958.65 milliseconds
+
+Total BRDF value: 1.96982e+09, 1.96982e+09, 1.96982e+09
