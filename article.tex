@@ -294,13 +294,6 @@ We also observe that this is true for refractive microfacets~(Equation (17) of \
 \end{equation}
 This is due to the fact that we have to differentiate with respect to the light direction which is not altered by the back vector.
 
-\begin{figure}[tbh]
-  \centering
-  \includegraphics[width=0.99\linewidth]{figures/brdf_plots.pdf}
-  \caption{Comparison of the retro-reflective MRM BRDF (blue) to the regular GGX microfacet BRDF (green) and rough-diffuse EON model (orange), as a function of view direction $\theta_o$ for fixed light directions $\theta_i \in {45^\circ, 80^\circ}$. The dashed lines are the roughness $0.1$ case, and the dashed lines roughness $0.666$. The grey horizontal line at $1/\pi$ is the Lambert BRDF.}
-  \label{fig:brdf_plots}
-\end{figure}
-
 \paragraph*{Microfacet reflection term.}
 There is experimental evidence~\cite{BelcourBackvector} that using a Fresnel term based on the back-vector can provide a good match to actual retro-reflective material measurements for a reflection back-vector based BRDF.
 As such, we update the formulation of $\rho(\vecv, \vecm)$~(Equation (11) of \citet{WalterMicrofacet}) to use the reflected view vector instead. From the aforementioned equivalence of the Jacobians, it follows that the reflection microsurface BRDF~(Equation (15) of \citet{WalterMicrofacet}) becomes
@@ -332,6 +325,14 @@ It follows from all this that the final retro-reflective microfacet model can be
 In the following section we show in detail that this model is plausible, i.e. that symmetry and energy conservation requirements are fulfilled.
 Note that for this we impose one technical assumption on $D$:
 we require that the microfacet normal distribution is reflection-symmetric around the normal (which is the case for all isotropic distributions and for anisotropic Phong, Beckmann, and GGX).
+
+\begin{figure}[tbh]
+  \centering
+  \includegraphics[width=0.9\linewidth]{figures/brdf_plots.pdf}
+  \caption{Comparison of the retro-reflective MRM BRDF (blue) to the regular GGX microfacet BRDF (green) and rough-diffuse EON model (orange), as a function of view direction $\theta_o$ for fixed light directions $\theta_i \in {45^\circ, 80^\circ}$. The dashed lines are the roughness $0.1$ case, and the dashed lines roughness $0.666$. The grey horizontal line at $1/\pi$ is the Lambert BRDF.}
+  \label{fig:brdf_plots}
+\end{figure}
+
 
 Figure~\ref{fig:brdf_plots} plots the BRDF values of the MRM model (green) compared to the rough diffuse (albedo 1) EON model \cite{Portsmouth2025EON} (orange) and GGX (blue). For both MRM and GGX, the Fresnel factor is set to 1.
 The $0.1$ roughness case is a very strong, tight peak (note the logarithmic scale on the y-axis), while the $0.666$ roughness case is a much broader peak.
@@ -510,7 +511,7 @@ Given an implementation of a regular microfacet BSDF, extending it to retro-refl
   As the albedos of standard BSDF and retro-reflective BSDF are identical, compensating for energy loss in the sense of \cite{KelemenBRDF} can be realized using the same data tables.
 \end{itemize}
 
-\noindent
+%\noindent
 \begin{lstlisting}[
     style=snippet,
     language=GLSL,
@@ -531,26 +532,25 @@ Eval_result eval_bsdf_retro(vec3 V, vec3 L, vec3 N, Bsdf_params params)
 }
 \end{lstlisting}
 
-
-
-
 \section{Results and Discussion}
 
 \label{sec:results}
 
-\paragraph*{Incorporation in a standard microfacet model}
+\paragraph*{Comparison to measured data}
 
-Figure~\ref{fig:conductor_renders} shows renders of a shaderball with either a classic GGX or retro-reflective MRM material applied, here assuming \emph{conducting} (i.e. metallic) microfacets.
+Figure~\ref{fig:data_fit} shows a fit of the retro-reflective MRM model (in red) to the measured BRDF of retro-reflective tape (in blue) from \cite{BelcourBackvector}. This is the "yellow tape" sample from their dataset, illuminated at three different light source angles $\theta_L \in \{15^\circ, 30^\circ, 60^\circ\}$ (in the plane of incidence).  The MRM model provides a reasonably good match to the retro-reflective peak using a roughness of $r = 0.23$, together with ``F82-tint'' Fresnel with $F_0=0.19$ and $F_{82} = 0$.
 
-\paragraph*{Combination of BRDF and BTDF}
+\begin{figure}[!b]
+  \begin{center}
+    \includegraphics[width=0.95\textwidth]{figures/data_fit.png}
+  \end{center}
+  \caption{Measured BRDF of retro-reflective tape (blue) at three different light source angles $\theta_L \in \{15^\circ, 30^\circ, 60^\circ\}$, and the MRM model fit (red).}
+  \label{fig:data_fit}
+\end{figure}
 
-The albedo is identical for forward- and retro-reflective BRDF as well as BTDF, which allows to arbitrarily combine forward- and retro-reflective variants into a BSDF.
-When constructing an artist-controllable retro-reflective dielectric BSDF, we observed that using $f_t$ instead of $f_{t, \text{retro}}$ yields more intuitive results, in particular for an index of refraction close to 1.
+\newpage
 
-Figure~\ref{fig:dielectric_renders} demonstrates this in renders of a dielectric shaderball, where the IOR of the dielectric material is either $1.0$ (top row) or $1.5$ (bottom row).
-Left to right we show three combinations of BRDF and BTDF: the classic microfacet BSDF $f_r$ and BTDF $f_t$ (left), the retro-reflective BRDF $f_{r,\text{retro}}$ plus retro-reflective BTDF $f_{t,\text{retro}}$ (middle), and retro-reflective BRDF $f_{r,\text{retro}}$ combined with the classic (non-retroreflective) BTDF $f_t$ (right).
-
-\begin{figure}[!ht]
+\begin{figure}[!!t]
     \centering
     \includegraphics[width=0.3\linewidth]{figures/conductor/cropped/classic_angle_0_cropped.png}
     \includegraphics[width=0.3\linewidth]{figures/conductor/cropped/classic_angle_45_cropped.png}
@@ -564,7 +564,7 @@ Left to right we show three combinations of BRDF and BTDF: the classic microface
   \label{fig:conductor_renders}
 \end{figure}
 
-\begin{figure}[!hb]
+\begin{figure}[!b]
   \centering
   \begin{tikzpicture}[font=\footnotesize]
     \node[inner sep=1pt] (Class1) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/classic_ior_1_cropped_label.png }};
@@ -583,7 +583,6 @@ Left to right we show three combinations of BRDF and BTDF: the classic microface
     \node[inner sep=1pt,left = 1pt of Class1, anchor=south,rotate=90] { $\mathbf{\boldsymbol{\eta} = 1}$ };
     \node[inner sep=1pt,left = 1pt of Class15, anchor=south,rotate=90] { $\mathbf{\boldsymbol{\eta} = 1.5}$ };
   \end{tikzpicture}
-
     % \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/classic_ior_1_cropped_label.png }
     % \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroRT_ior_1_cropped_label.png }
     % \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroR_ior_1_cropped_label.png } \\
@@ -594,6 +593,20 @@ Left to right we show three combinations of BRDF and BTDF: the classic microface
   \caption{Renders of a glass shaderball illuminated from the side. The index of refraction is $1.0$ (top) or $1.5$ (bottom). From left to right: classic microfacet BSDF (left), retro-reflective BSDF (middle), and combined retro-reflective BRDF and classic BTDF (right).  }
   \label{fig:dielectric_renders}
 \end{figure}
+
+\newpage
+
+\paragraph*{Incorporation in a standard microfacet model}
+
+Figure~\ref{fig:conductor_renders} shows renders of a shaderball with either a classic GGX or retro-reflective MRM material applied, here assuming \emph{conducting} (i.e. metallic) microfacets.
+
+\paragraph*{Combination of BRDF and BTDF}
+
+The albedo is identical for forward- and retro-reflective BRDF as well as BTDF, which allows to arbitrarily combine forward- and retro-reflective variants into a BSDF.
+When constructing an artist-controllable retro-reflective dielectric BSDF, we observed that using $f_t$ instead of $f_{t, \text{retro}}$ yields more intuitive results, in particular for an index of refraction close to 1.
+
+Figure~\ref{fig:dielectric_renders} demonstrates this in renders of a dielectric shaderball, where the IOR of the dielectric material is either $1.0$ (top row) or $1.5$ (bottom row).
+Left to right we show three combinations of BRDF and BTDF: the classic microfacet BSDF $f_r$ and BTDF $f_t$ (left), the retro-reflective BRDF $f_{r,\text{retro}}$ plus retro-reflective BTDF $f_{t,\text{retro}}$ (middle), and retro-reflective BRDF $f_{r,\text{retro}}$ combined with the classic (non-retroreflective) BTDF $f_t$ (right).
 
 
 

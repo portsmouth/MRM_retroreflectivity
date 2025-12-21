@@ -99,8 +99,8 @@ def plot_brdf_data():
         axes[index].plot(data['theta_o'], data['MRM'],     label='MRM'     if show_legend else None, color='green',  linewidth=1.0, linestyle=linestyle)
 
         # Set the title for each subplot
-        axes[index].set_title(f"$\\theta_i$: ${theta_i}^\circ$, $\\phi_o$: ${phi}^\circ$, $r$: ${roughness}$", fontsize=12)
-        axes[index].set_xlabel(r"$\theta_o$", fontsize=16, fontweight='bold')
+        axes[index].set_title(f"$\\theta_i: {theta_i}^\\circ$, $\\phi_o: {phi}^\\circ$, $r: {roughness}$", fontsize=12)
+        axes[index].set_xlabel(f"$\\theta_o$", fontsize=16, fontweight='bold')
         axes[index].set_ylabel('BRDF value', fontsize=16)
         axes[index].set_xlim(-90, 90)
 

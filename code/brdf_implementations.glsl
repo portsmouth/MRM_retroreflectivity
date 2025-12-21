@@ -275,7 +275,25 @@ float lambda_ggx(vec3 V, float r)
 
 float G2_ggx(vec3 V, vec3 L, float r)
 {
+    // separable masking-shadowing function
+    // return 1.0f/(1.0f + lambda_ggx(V, r)) * 1.0f/(1.0f + lambda_ggx(L, r));
+
+    // height-correlated masking-shadowing function
     return 1.0f / (1.0f + lambda_ggx(V, r) + lambda_ggx(L, r));
+}
+
+vec3 Schlick(vec3 F0, float mu)
+{
+    return F0 + pow(1.f - mu, 5.f)*(vec3(1.f) - F0);
+}
+
+vec3 FresnelConductorF82(float mu, vec3 F0, vec3 F82)
+{
+    const float mu_bar = 1.f/7.f;
+    const float denom = mu_bar * pow(1.f - mu_bar, 6.f);
+    vec3 Fschlick_bar = Schlick(F0, mu_bar);
+    vec3 Fschlick     = Schlick(F0, mu);
+    return Fschlick - mu * pow(1.f - mu, 6.f) * (vec3(1.f) - F82) * Fschlick_bar / denom;
 }
 
 vec3 f_GGX(vec3 rho, float r, vec3 wi_local, vec3 wo_local)
@@ -287,7 +305,10 @@ vec3 f_GGX(vec3 rho, float r, vec3 wi_local, vec3 wo_local)
     float G2 = G2_ggx(V, L, r);
     const float tol = 1.0e-7f;
     float J = 1.f / max(4.f*abs(V.z)*abs(L.z), tol);
-    return rho * G2 * D * J;
+    vec3 F0  = vec3(0.19f);
+    vec3 F82 = vec3(0.f);
+    vec3 F = FresnelConductorF82(abs(dot(V, H)), F0, F82);
+    return rho * F * G2 * D * J;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -299,12 +320,15 @@ vec3 f_MRM(vec3 rho, float r, vec3 wi_local, vec3 wo_local)
     vec3 V = wi_local;
     vec3 L = wo_local;
     V = vec3(-V.x, -V.y, V.z); // retro-reflect V
-    vec3 H = normalize(V + L);
-    float D = D_GGX(H, r);
+    vec3 B = normalize(V + L); // "back-vector" B
+    float D = D_GGX(B, r);
     float G2 = G2_ggx(V, L, r);
     const float tol = 1.0e-7f;
     float J = 1.f / max(4.f*abs(V.z)*abs(L.z), tol);
-    return rho * G2 * D * J;
+    vec3 F0  = vec3(0.19f);
+    vec3 F82 = vec3(0.f);
+    vec3 F = FresnelConductorF82(abs(dot(V, B)), F0, F82);
+    return rho * F * G2 * D * J;
 }
 
 ///////////////////////////////////////////////////////////////////
