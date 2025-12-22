@@ -52,9 +52,12 @@
 \newcommand{\etal}{\eta_{\mathbf{l}}}
 \newcommand{\etax}{\eta_{\mathbf{x}}}
 \newcommand{\etay}{\eta_{\mathbf{y}}}
-\newcommand{\vdot}[2]{\left\langle #1, #2 \right\rangle}
+\newcommand{\vdot}[2]{#1 \cdot #2}
 %\newcommand{\vdot}[2]{#1\cdot#2}
 \newcommand{\avdot}[2]{\lvert\vdot{#1}{#2}\rvert}
+\newcommand{\cldot}[2]{\langle #1 , #2 \rangle}
+
+\newcommand{\diff}{\, \mathrm{d}}
 
 \newcommand{\laurent}[1]{{\color{blue}\textbf{[Laurent:} #1\textbf{]}}}
 
@@ -184,85 +187,85 @@ Modeling of retro-reflectivity in the surface scattering function has received l
 
 We detail the correct usage and derivation of this retro-reflective BSDF model within the microfacet framework~\cite{WalterMicrofacet,HeitzMicrofacet}. We first recall some basic principles from microfacet theory (Section~\ref{sec:microfacets}), then show how this model can be steered from forward- to retro-reflection (Section~\ref{sec:backvector}), and further provide proof that the resulting BSDF is fully plausible (Section~\ref{sec:plausibility}). In Section~\ref{sec:implementation}, we sketch how the model can be implemented in practice, which is done trivially by reusing existing microfacet BSDF implementations. Finally, we provide some visual results and discussion of the behavior (Section~\ref{sec:results}).
 
-\section{Microfacet BSDF Models}
+\section{Back-vector Modification of Microfacet Models}
 \label{sec:microfacets}
 
-\begin{figure}[!b]
-  \begin{center}
-    \begin{tabular} {|p{0.2\textwidth}|p{0.7\textwidth}|}
-%    \begin{tabular} {|l|l|}
-      \hline
-      $\vecv$ & normalized vector to viewer \\
-      \hline
-      $\vecl$ & normalized vector to light \\
-      \hline
-      $\vecn$ & surface macronormal, with the convention in the refractive case that it points into the medium with a lower IOR \\
-      \hline
-      $\mathbf{t_1}, \mathbf{t_2}$ & tangent and bitangent (forming an orthonormal coordinate frame with the macronormal) \\
-      \hline
-      $\vechr$ & half vector of reflection, $\vechr = \vechr(\vecv, \vecl) = \frac{\vecv + \vecl}{\lVert \vecv + \vecl \rVert}$ \\
-      \hline
-      $\vecht$ & half vector of refraction, $\vecht = \vecht(\vecv, \vecl) = -\frac{\left(\etav\vecv + \etal\vecl\right)}{\lVert\etav\vecv + \etal\vecl\rVert}$, where $\etav$ and $\etal$ are the refractive indices of the media $\vecv$ and $\vecl$ point to\\
-      \hline
-      $\vdot{\vecx}{\vecy}$ & dot product of $\vecx$ and $\vecy$ \\
-      \hline
-      $\text{reflect}(\mathbf{x}, \mathbf{m})$ & reflection of vector $\mathbf{x}$ on surface with normal $\mathbf{m}$, i.e. $\text{reflect}(\mathbf{x}, \mathbf{m}) = -\mathbf{x} + 2 \vdot{\mathbf{x}}{\mathbf{m}} \mathbf{m}$ \\
+%\begin{figure}[!b]
+%  \begin{center}
+%    \begin{tabular} {|p{0.2\textwidth}|p{0.7\textwidth}|}
+%%    \begin{tabular} {|l|l|}
 %      \hline
-%      $\Omega$ & hemisphere of directions around the normal\\
-      \hline
-      $\Omega, \Omega_{\vecx}$ & hemisphere of directions around the normal, hemisphere of directions around the normal pointing to the side $\vecx$ points to\\
-      \hline
-    \end{tabular}
-  \end{center}
-  \caption{
-    Notation used.
-  }
-  \label{fig:notation}
-\end{figure}
+%      $\vecv$ & normalized vector to viewer \\
+%      \hline
+%      $\vecl$ & normalized vector to light \\
+%      \hline
+%      $\vecn$ & surface macronormal, with the convention in the refractive case that it points into the medium with a lower IOR \\
+%      \hline
+%      $\mathbf{t_1}, \mathbf{t_2}$ & tangent, bitangent (forming an orthonormal frame with $\vecn$) \\
+%      \hline
+%      $\vechr$ & half vector of reflection, $\vechr = \vechr(\vecv, \vecl) = \frac{\vecv + \vecl}{\lVert \vecv + \vecl \rVert}$ \\
+%      \hline
+%      $\vecht$ & half vector of refraction, $\vecht = \vecht(\vecv, \vecl) = -\frac{\left(\etav\vecv + \etal\vecl\right)}{\lVert\etav\vecv + \etal\vecl\rVert}$, %where $\etav$, $\etal$ are the IORs of the media $\vecv$, $\vecl$ point to\\
+%      \hline
+%      $\cldot{\vecx}{\vecy}$ & clamped dot product of $\vecx$ and $\vecy$, i.e. $\max(0, \vecx \cdot \vecy)$ \\
+%      \hline
+%      $\chi^+(a)$ & Heaviside step function, i.e. $1$ if $a > 0$ and $0$ otherwise \\
+%      \hline
+%      $\text{reflect}(\mathbf{x}, \mathbf{m})$ & reflection of vector $\mathbf{x}$ on surface with normal $\mathbf{m}$, i.e. $\text{reflect}(\mathbf{x}, \mathbf%{m}) = -\mathbf{x} + 2 (\vdot{\mathbf{x}}{\mathbf{m}})\mathbf{m}$ \\
+%%      \hline
+%%      $\Omega$ & hemisphere of directions around the normal\\
+%      \hline
+%      $\Omega, \Omega_{\vecx}$ & hemisphere of directions around the normal, hemisphere of directions around the normal pointing to the side $\vecx$ points to\\
+%      \hline
+%    \end{tabular}
+%  \end{center}
+%  \caption{
+%    Notation used.
+%  }
+%  \label{fig:notation}
+%\end{figure}
 
-Using the notation of Figure \ref{fig:notation}, a microfacet BRDF \cite{WalterMicrofacet, HeitzMicrofacet} takes the form (\citet{WalterMicrofacet} Equation (20))
+A microfacet BRDF \cite{WalterMicrofacet, HeitzMicrofacet} takes the form (\citet{WalterMicrofacet} Equation (20))
 \begin{equation}
-  f_r(\vecv, \vecl) = \frac{D(\vechr) \, G_{2}(\vecv,\vecl) \, F(\vechr, \vecv)}{4 \vdot{\vecv}{\vecn} \vdot{\vecl}{\vecn}}
+  f_r(\vecv, \vecl) = \frac{D(\vechr) \, G_{2}(\vecv,\vecl,\vechr) \, F(\vecv, \vechr)}{4 \avdot{\vecv}{\vecn} \avdot{\vecl}{\vecn}}
   \label{eq:microfacet_brdf}
 \end{equation}
-where $D$ is the distribution of microfacets, normalized to fulfill $\int_\Omega D(\vech) \vdot{\vecn}{\vech} d\vech = 1$, $G_{2}$ is the shadowing-masking function, and $F$ is the Fresnel term. The half-vector $\vechr$ is used as the \textit{selector} for microfacets reflecting light from incident direction $\vecl$ to outgoing view direction $\vecv$ (\textit{i.e.} only microfacets with normals aligned with the half-vector will reflect light).
-Similarly, using the half-vector of refraction $\vecht$ as selector yields the corresponding BTDF:
+where $D$ is the distribution of micronormals (NDF), normalized to fulfill $\int_\Omega D(\vech) (\vdot{\vecn}{\vech}) \diff\vech = 1$, $G_{2}$ is the shadowing-masking function, and $F$ is the Fresnel term. The half-vector $\vechr = \vechr(\vecv, \vecl) = \frac{\vecv + \vecl}{\lVert \vecv + \vecl \rVert}$ is used as the \textit{selector} for microfacets reflecting light from incident direction $\vecl$ to outgoing view direction $\vecv$ (\textit{i.e.} only microfacets with normals aligned with the half-vector will reflect light).
+Similarly, using the half-vector of refraction $\vecht = \vecht(\vecv, \vecl) = -\frac{\left(\etav\vecv + \etal\vecl\right)}{\lVert\etav\vecv + \etal\vecl\rVert}$ (where $\etav$, $\etal$ are the IORs of the media $\vecv$, $\vecl$ point to) as selector yields the corresponding BTDF:
 \begin{equation}
   f_t(\vecv, \vecl) =
-  \frac{\avdot{\vecv}{\vecht}\avdot{\vecl}{\vecht}\etav^2 D(\vecht) \, G_{2}(\vecv,\vecl) \, \left(1 - F(\vecht, \vecv) \right)}
+  \frac{\avdot{\vecv}{\vecht}\avdot{\vecl}{\vecht}\, \etav^2 \, D(\vecht) \, G_{2}(\vecv,\vecl,\vecht) \, \bigl(1 - F(\vecv, \vecht) \bigr)}
        {\avdot{\vecv}{\vecn} \avdot{\vecl}{\vecn} \left(\etav \vdot{\vecv}{\vecht} + \etal \vdot{\vecl}{\vecht} \right)^2}
   \label{eq:microfacet_btdf}.
 \end{equation}
 In Section~4.1 and Section~4.2 of their work, Walter et al.~\cite{WalterMicrofacet} detail the effect of using the half vector as the microfacet selector and obtain Equations~\eqref{eq:microfacet_brdf} and \eqref{eq:microfacet_btdf}.
-In this work, we show that using the \emph{back vector}~\cite{BelcourBackvector} instead as a microfacet selector produces a highly plausible model of retro-reflection. Before detailing the impact of such a change, we review some standard properties of microfacet models.
+In this work, we show that using the \emph{back vector}~\cite{BelcourBackvector} instead as a microfacet selector produces a highly plausible model of retro-reflection.
+%Before detailing the impact of such a change, we review some standard properties of microfacet models.
 
-\paragraph*{Shadowing-Masking.}
+%\paragraph*{Shadowing-Masking.}
+%
+%The shadowing-masking function $G_{2}(\vecv, \vecl, \vech)$ combines the visibility masking function $G_1(\vecv, \vech)$ for the view direction and the visibility %shadowing function
+%$G_1(\vecl, \vech)$ for the light direction. In the case of independent shadowing and masking, it is common to use the separable form\footnote{See Section 6 of %\citet{HeitzMicrofacet} for a discussion of separable vs. non-separable shadowing-masking functions. Our derivation holds for any valid $G_2$ function, but we %focus here on the separable case for simplicity.}
+%\begin{equation}
+%G_{2}(\vecv, \vecl, \vech) = G_1(\vecv, \vech) \, G_1(\vecl, \vech)\ .
+%\end{equation}
+%Mathematically, the BSDF is plausible if $G_{2}$ is symmetric w.r.t. to exchanging $\vecv$ and $\vecl$, fulfills
+%$G_{2}(\vecv, \vech) \leq G_1(\vecv, \vecl)$, and if $G_1$ further establishes the correct projected area of visible micro-surfaces \cite{HeitzMicrofacet}
+%\begin{equation}\label{eq:visible}
+%  \avdot{\vecv}{\vecn} = \int_{\Omega_{\vecv}} G_1(\vecv, \vech) \cldot{\vecv}{\vech} D(\vech) \diff\vech.
+%\end{equation}
+%Popular choices for $G_1$ with this property are the Smith masking function
+%\begin{equation}
+%  G_{1,\text{Smith}}(\vecv, \vech) = \frac{\chi^+(\vdot{\vecv}{\vech})  \avdot{\vecv}{\vecn}}{\int_{\Omega_{\vecv}} \cldot{\vecv}{\vech} D(\vech) \diff\vech},
+%\end{equation}
+%where analytic expressions are available for Beckmann and GGX distributions, and the V-cavity masking function \cite{HeitzMicrofacet}
+%\begin{equation}
+%  G_{1,\text{vc}}(\vdot{\vecv}{\vecn},\vdot{\vecn}{\vech},\vdot{\vecv}{\vech}) =
+%  \min\left\lbrace\frac{2\avdot{\vecv}{\vecn}\avdot{\vecn}{\vech}}{\avdot{\vecv}{\vech}}, 1\right\rbrace,
+%\end{equation}
+%which is generally applicable for distributions with symmetry around the normal.
 
-The shadowing-masking function $G_{2}(\vecv, \vecl, \vech)$ combines the visibility masking function $G_1(\vecv, \vech)$ for the view direction and the visibility shadowing function
-$G_1(\vecl, \vech)$ for the light direction. In the case of independent shadowing and masking, it is common to use the separable form\footnote{See Section 6 of \citet{HeitzMicrofacet} for a discussion of separable vs. non-separable shadowing-masking functions. Our derivation holds for any valid $G_2$ function, but we focus here on the separable case for simplicity.}
-\begin{equation}
-G_{2}(\vecv, \vecl, \vech) = G_1(\vecv, \vech) \times G_1(\vecl, \vech)\ .
-\end{equation}
-Mathematically, the BSDF is plausible if $G_{2}$ is symmetric w.r.t. to exchanging $\vecv$ and $\vecl$, fulfills
-$G_{2}(\vecv, \vech) \leq G_1(\vecv, \vecl)$, and if $G_1$ further establishes the correct projected area of visible micro-surfaces \cite{HeitzMicrofacet}
-\begin{equation}\label{eq:visible}
-  \avdot{\vecv}{\vecn} = \int_{\lbrace\vech \in \Omega_{\vecv}: \vdot{\vecv}{\vech} \geq 0\rbrace} D(\vech) \,G_1(\vecv, \vech) \vdot{\vecv}{\vech} d\vech.
-\end{equation}
-Choices for $G_1$ with this property are the Smith masking function
-\begin{equation}
-  G_1(\vecv, \vech) = G_{1,\text{Smith}}(\vecv) = \frac{\avdot{\vecv}{\vecn}}{\int_{\lbrace\vech \in \Omega_{\vecv}: \vdot{\vecv}{\vech} \geq 0\rbrace} D(\vech) \vdot{\vecv}{\vech} d\vech},
-\end{equation}
-where analytic expressions are available for Beckmann and GGX distributions, and the V-cavity masking function \cite{HeitzMicrofacet}
-\begin{equation}
-  G_1(\vecv, \vech) = G_{1,\text{vc}, \vech}(\vdot{\vecv}{\vecn},\vdot{\vecn}{\vech},\vdot{\vecv}{\vech}) =
-  \min\left\lbrace\frac{2\avdot{\vecv}{\vecn}\avdot{\vecn}{\vech}}{\avdot{\vecv}{\vech}}, 1\right\rbrace,
-\end{equation}
-which is generally applicable for distributions with symmetry around the normal.
-
-\section{Back-vector Modification}
-\label{sec:backvector}
-
-Instead of reflection half-vector $\vechr$, we can use the reflection back-vector $\vecbr$~\cite{BelcourBackvector} defined as
+To achieve retro-reflection, we modify the microfacet model by changing the microfacet normal selector from the half-vector to the \emph{back-vector}~\cite{BelcourBackvector}, defined as
 \begin{equation}
   \vecbr(\vecv, \vecl) = \vechr(\vecvv, \vecl) = \frac{\vecvv + \vecl}{\lVert \vecvv + \vecl \rVert}, \text{ with } \vecvv = \text{reflect}(\vecv, \vecn),
 \end{equation}
@@ -284,7 +287,7 @@ We now detail the mathematical consequences of using the back-vector as microfac
 \paragraph*{Jacobian of Back-Vector.}
 First we observe that the Jacobian of the change of variable from the back-vector to the light vector $\vecl$ for specular microfacets~(Equation~(11) and~(14) of \citet{WalterMicrofacet}) has the same form as the half-vector one:
 \begin{equation}
-\left\lVert \dfrac{\partial \omega_{\vecb_{r}}}{\partial \omega_{\vecl}} \right\rVert = \left\lVert \dfrac{\partial \omega_{\vech_{r}(\vecvv, \vecl)}}{\partial \omega_{\vecl}} \right\rVert = \dfrac{1}{4 \left| \vdot{\vecl}{\vech(\vecvv, \vecl)} \right|} = \dfrac{1}{4 \left| \vdot{\vecl}{\vecb} \right|} \ .
+\left\lVert \dfrac{\partial \omega_{\vecb_{r}}}{\partial \omega_{\vecl}} \right\rVert = \left\lVert \dfrac{\partial \omega_{\vech_{r}(\vecvv, \vecl)}}{\partial \omega_{\vecl}} \right\rVert = \dfrac{1}{4 \left| \vdot{\vecl}{\vech_{r}(\vecvv, \vecl)} \right|} = \dfrac{1}{4 \left| \vdot{\vecl}{\vecbr} \right|} \ .
 \end{equation}
 We also observe that this is true for refractive microfacets~(Equation (17) of \citet{WalterMicrofacet}):
 \begin{equation}
@@ -306,8 +309,29 @@ Similarly, for the transmissive microsurfacet BTDF (Equation~(18) of \citet{Walt
 Thus for both reflection and refraction, the effect on the microsurface BSDF of using the back-vector as selector is to replace $\vecv$ by $\vecvv$ in the Fresnel term and in the denominators.
 
 \paragraph*{Shadowing \& Masking.}
-We assume Smith or V-cavity masking is applied to the mirrored microfacet distribution.
-With Smith masking, this is actually identical to a regular microfacet BSDF, as $\vecvv$ and $\vecv$ share the same geometric configuration. For V-cavity masking, we take $\vecvv$ as view direction and, consequently, $\vecb$ as microfacet normal.
+The term $G_{2}(\vecv,\vecl,\vechr)$ in the microfacet model accounts for shadowing and masking of microfacets.
+
+The shadowing-masking function $G_{2}(\vecv, \vecl, \vech)$ accounts for the geometrical occlusion of the incident and outgoing rays by the local microsurface geometry. It combines the visibility masking function $G_1(\vecv, \vech)$ for the view direction and the visibility shadowing function $G_1(\vecl, \vech)$ for the light direction. In the case of independent shadowing and masking, it is common to use the separable form\footnote{See Section 6 of \citet{HeitzMicrofacet} for a discussion of separable vs. non-separable shadowing-masking functions. Our derivation holds for any valid $G_2$ function, but we focus here on the separable case for simplicity.}
+\begin{equation}
+G_{2}(\vecv, \vecl, \vech) = G_1(\vecv, \vech) \, G_1(\vecl, \vech)\ .
+\end{equation}
+Mathematically, the BSDF is plausible if $G_{2}$ is symmetric w.r.t. to exchanging $\vecv$ and $\vecl$, fulfills
+$G_{2}(\vecv, \vech) \leq G_1(\vecv, \vecl)$, and if $G_1$ further establishes the correct projected area of visible micro-surfaces \cite{HeitzMicrofacet}
+\begin{equation}\label{eq:visible}
+  \avdot{\vecv}{\vecn} = \int_{\Omega_{\vecv}} G_1(\vecv, \vech) \cldot{\vecv}{\vech} D(\vech) \diff\vech.
+\end{equation}
+Popular choices for $G_1$ with this property are the Smith masking function
+\begin{equation} \label{eq:smith_masking}
+  G_{1,\text{Smith}}(\vecv, \vech) = \frac{\chi^+(\vdot{\vecv}{\vech})  \avdot{\vecv}{\vecn}}{\int_{\Omega_{\vecv}} \cldot{\vecv}{\vech} D(\vech) \diff\vech},
+\end{equation}
+where analytic expressions are available for Beckmann and GGX distributions, and the V-cavity masking function \cite{HeitzMicrofacet}
+\begin{equation} \label{eq:vc_masking}
+  G_{1,\text{VC}}(\vecv, \vech) =
+  \min\left\lbrace\frac{2\avdot{\vecv}{\vecn}\avdot{\vecn}{\vech}}{\avdot{\vecv}{\vech}}, 1\right\rbrace,
+\end{equation}
+which is generally applicable for distributions with symmetry around the normal.
+
+We assume Smith or V-cavity masking is applied to the mirrored microfacet distribution. With Smith masking, this is actually identical to a regular microfacet BSDF, as $\vecvv$ and $\vecv$ share the same geometric configuration. For V-cavity masking, we take $\vecvv$ as view direction and, consequently, $\vecb$ as microfacet normal.
 %\todo{\tiny Laurent: I think we could extract the shadowing from Matthias derivation here. The other way to justify the derivation of the full model is to highlight that Smith's shadowing/masking does not depend on the microfacet (appart from the sideness). Hence, whatever the microfacet selector (as long as the sideness matches), the shadowing/masking is the same. Since $\vecv$ and $\vecvv$ share the same slope, we can exchange them in the equation.}
 
 \paragraph*{Final form.}
@@ -316,7 +340,7 @@ It follows from all this that the final retro-reflective microfacet model can be
   %  f_\text{retro}(\vecv, \vecl) = f(\vecvv, \vecl) = \frac{D(\vecb) \, G_{2}(\vecvv,\vecl) \, F(\vecvv, \vecb)}{4 \vdot{\vecvv}{\vecn} \vdot{\vecl}{\vecn}}
   f_\text{retro}(\vecv, \vecl) =
   \begin{cases}
-    f_{r, \text{retro}}(\vecv, \vecl) = f_r(\vecvv, \vecl)  & \text{if} \vdot{\vecv}{\vecn}\vdot{\vecl}{\vecn} \geq 0, \\
+    f_{r, \text{retro}}(\vecv, \vecl) = f_r(\vecvv, \vecl)  & \text{if \;} (\vdot{\vecv}{\vecn})(\vdot{\vecl}{\vecn}) \geq 0, \\
     f_{t, \text{retro}}(\vecv, \vecl) = f_t(\vecvv, \vecl)  & \text{otherwise}.
   \end{cases}
 \end{equation}
@@ -324,9 +348,9 @@ In the following section we show in detail that this model is plausible, i.e. th
 Note that for this we impose one technical assumption on $D$:
 we require that the microfacet normal distribution is reflection-symmetric around the normal (which is the case for all isotropic distributions and for anisotropic Phong, Beckmann, and GGX).
 
-\begin{figure}[tbh]
+\begin{figure}[!tb]
   \centering
-  \includegraphics[width=0.9\linewidth]{figures/brdf_plots.pdf}
+  \includegraphics[width=0.83\linewidth]{figures/brdf_plots.pdf}
   \caption{Comparison of the retro-reflective MRM BRDF (blue) to the regular GGX microfacet BRDF (green) and rough-diffuse EON model (orange), as a function of view direction $\theta_o$ for fixed light directions $\theta_i \in {45^\circ, 80^\circ}$. The dashed lines are the roughness $0.1$ case, and the dashed lines roughness $0.666$. The grey horizontal line at $1/\pi$ is the Lambert BRDF.}
   \label{fig:brdf_plots}
 \end{figure}
@@ -337,117 +361,73 @@ The $0.1$ roughness case is a very strong, tight peak (note the logarithmic scal
 It is evident that MRM BRDF is the same as GGX,with the peak flipped to be back-scattering (at exactly $\theta_o =-\theta_i$, $\phi_o = \phi_i$).
 The $\phi_o = 45^\circ$ case demonstrates the situation when the view direction is not aligned in the same azimuthal plane. In this case. both GGX and MRM are dimmer than Lambert or EON, which compensates for the extra energy of the peaks of MRM and GGX (in which almost all of the energy is concentrated, in the reflection or retro-reflection direction respectively for GGX and MRM).
 
-\section{Plausibility of the Back-vector Modification}
+We briefly show here that the retro-reflective microfacet model of Equation~\eqref{eq:retro_microfacet_model} is plausible, i.e. that it fulfills symmetry and energy conservation requirements.
 
-\label{sec:plausibility}
+\section{Reciprocity of MRM}
 
-We briefly prove here that the retro-reflective microfacet model of Equation~\eqref{eq:retro_microfacet_model} is plausible, i.e. that it fulfills symmetry and energy conservation requirements.
+\label{sec:reciprocity}
 
-In analogy to the notation for $\vecvv$ we generally let $\vecxx := \text{reflect}(\vecx, \vecn)$.
-First we observe
-\begin{equation}\label{eq:nk}
-  \begin{split}
-    \vdot{\vecvv}{\vecn} &= \vdot{\vecv}{\vecn} \text{ and}\\
-    \vdot{\vecl}{\vecn} &= \vdot{\vecll}{\vecn}.
-  \end{split}
-\end{equation}
-For the reflection back-vector we show $\vechr(\vecvv, \vecl) = \text{reflect}\left(\vechr(\vecll, \vecv), \vecn\right)$, as
+We first verify that the retro-reflective microfacet model fulfills reciprocity symmetry, i.e.
 \begin{equation}
-  \begin{split}
-  \vecvv + \vecl &=
-  \left(-\vecv + 2 \vdot{\vecv}{\vecn} \vecn \right) + \vecl \\
-  &= \left(-\vecv + 2 \vdot{\vecv}{\vecn} \vecn \right) + \left(- \vecll + 2 \vdot{\vecll}{\vecn} \vecn \right)\\
-  &= -(\vecll + \vecv) + 2 \vdot{(\vecll + \vecv)}{\vecn} \vecn =
-  \text{reflect}(\vecll + \vecv, \vecn) \ ,
-  \end{split}
+  f_{r,\text{retro}}(\vecv, \vecl) = f_{r,\text{retro}}(\vecl, \vecv) \ .
 \end{equation}
-and therefore $\lVert \vecvv + \vecl \rVert = \lVert \vecll + \vecv \rVert$ as well.
-Similarly, for refraction we have
+For brevity, in analogy to the notation for $\vecvv$ we generally let $\vecxx := \text{reflect}(\vecx, \vecn)$.
+We will verify explicitly that the retro-reflective model is symmetric under the interchange operation $(\vecvv, \vecl) \leftrightarrow (\vecll, \vecv)$, which is the equivalent of the usual reciprocity symmetry $(\vecv, \vecl) \leftrightarrow (\vecl, \vecv)$ for regular microfacet models.
+
+\paragraph*{NDF term.}
+
+The NDF term $D(\vech)$ in the microfacet model selects the microfacets oriented with normal $\vech$. Under the interchange operation, we have to verify that
 \begin{equation}
-  \begin{split}
-  \etav\vecvv + \etal\vecl &=
-  \etav\left(-\vecv + 2 \vdot{\vecv}{\vecn} \vecn \right) + \etal\vecl \\
-  &= \etav\left(-\vecv + 2 \vdot{\vecv}{\vecn} \vecn \right) + \etal\left(- \vecll + 2 \vdot{\vecll}{\vecn} \vecn \right)\\
-  &= -(\etal\vecll + \etav\vecv) + 2 \vdot{(\etal\vecll + \etav\vecv)}{\vecn} \vecn =
-  \text{reflect}(\etal\vecll + \etav\vecv, \vecn)
-  \end{split}
+D(\vech(\vecvv, \vecl)) = D(\vech(\vecll, \vecv))
 \end{equation}
-which implies $\lVert \etav\vecvv + \etal\vecl \rVert = \lVert \etal\vecll + \etal\vecv \rVert$ and
-results in $\vecht(\vecvv, \vecl) = \text{reflect}\left(\vecht(\vecll, \vecv), \vecn\right)$.
-From that we can conclude
-\begin{equation}\label{eq:nh}
-  \begin{split}
-    \vdot{\vecn}{\vech(\vecvv, \vecl)} &=
-    \vdot{\vecn}{\vech(\vecll, \vecv)}  \ , \\
-    \vdot{\mathbf{t_1}}{\vech(\vecvv, \vecl)} &=
-    -\vdot{\mathbf{t_1}}{\vech(\vecll, \vecv)} \ , \\
-    \vdot{\mathbf{t_2}}{\vech(\vecvv, \vecl)} &=
-    -\vdot{\mathbf{t_2}}{\vech(\vecll, \vecv)}\\
-    \end{split}
-\end{equation}
-for both reflection ($\vech = \vechr$) and refraction ($\vech = \vecht$) cases.
-Since we assumed $D$ is reflection-symmetric around the normal, i.e. it takes the form
+for both reflection and refraction cases. Since $\vech(\vecvv, \vecl)$ is the reflection of $\vech(\vecll, \vecv)$ around the normal, this holds true if $D$ is reflection-symmetric around the normal, i.e. it takes the form
 \begin{equation}
 D(\vech) = D\left(\avdot{\vecn}{\vech}, \lvert \vdot{\mathbf{t_1}}{\vech} \rvert, \lvert \vdot{\mathbf{t_2}}{\vech} \rvert\right)
 \end{equation}
-we can thus infer that using it with a back-vector obeys symmetry.
-Further, the reflection symmetry of $D$ along with Equation \eqref{eq:nk} gives
+which we as noted above is a requirement for our model, but true of most commonly used microfacet distributions (including for example anisotropic GGX).
+
+\paragraph*{Shadowing \& Masking.}
+
+The shadowing-masking function $G_{2}(\vecv,\vecl,\vech)$ in the microfacet model accounts for the geometrical occlusion of the incident and outgoing rays by the local microsurface geometry. We have to verify that
+\begin{equation} \label{eq:shadowing_symmetry}
+G_{2}(\vecvv,\vecl,\vech(\vecvv, \vecl)) = G_{2}(\vecll,\vecv,\vech(\vecll, \vecv)) \ .
+\end{equation}
+First, V-cavity masking manifestly satisfies the following symmetry under reflection of both the view and light directions \emph{and} the selected microfacet normal:
 \begin{equation}
-  \begin{split}
-  G_{1,\text{Smith}}(\vecv, \vech) &=
-  \frac{\avdot{\vecv}{\vecn}}{\int_{\lbrace\vech \in \Omega_{\vecv}: \vdot{\vecv}{\vech} \geq 0\rbrace} D(\vech) \vdot{\vecv}{\vech} d\vech} \\
-  &= \frac{\avdot{\vecvv}{\vecn}}{\int_{\lbrace\vech \in \Omega_{\vecvv}: \vdot{\vecvv}{\vech} \geq 0\rbrace} D(\vech) \vdot{\vecvv}{\vech} d\vech} =
-  G_{1,\text{Smith}}(\vecvv, \vech)
-  \end{split}
+  G_2(\vecvv, \vecl, \vech(\vecvv, \vecl)) = G_2(\vecv, \vecll, \vech(\vecv, \vecll)) \ .
 \end{equation}
-for Smith-masking. Next we show
+as can be verified with Equation~\eqref{eq:vc_masking}. In the case of Smith masking, this also holds provided that $D$ is reflection-symmetric around the normal (which we assumed), as follows from Equation~(\eqref{eq:smith_masking}. Then it follows from standard reciprocity that
 \begin{equation}
-  \begin{split}
-%  \vdot{\vecx}{\vecy} = -\vdot{\vecxx}{\vecy} + 2 \vdot{\vecxx}{\vecn}\vdot{\vecy}{\vecn}
-%  = \vdot{\vecxx}{-\vecyy + 2 \vdot{\vecyy}{\vecn}\vecn} = \vdot{\vecxx}{\vecyy}
-    \vdot{\vecxx}{\vecyy} &= \vdot{-\vecx}{\vecyy} + 2 \vdot{\vecx}{\vecn}\vdot{\vecn}{\vecyy}\\
-  &= \vdot{-\vecx}{-\vecy} + \vdot{-\vecx}{2 \vdot{\vecy}{\vecn}\vecn} + 2 \vdot{\vecx}{\vecn}\vdot{\vecn}{\vecy}\\
-  &= \vdot{\vecx}{\vecy}
-\end{split}
+  G_2(\vecv, \vecll, \vech(\vecv, \vecll)) = G_2(\vecll, \vecv, \vech(\vecll, \vecv)) \ .
 \end{equation}
-and therefore
-\begin{equation}\label{eq:khr}
-  \vdot{\vecx}{\vech(\vecx, \vecy)} =
-  \frac{1 + \vdot{\vecy}{\vecx}}{\lVert \vecx + \vecy \rVert} =
-  \frac{\vdot{\vecyy}{\vecyy} + \vdot{\vecyy}{\vecxx}}{\lVert \vecyy + \vecxx \rVert} =
-  \vdot{\vecyy}{\vech(\vecyy,\vecxx)}
-\end{equation}
-as well as
-\begin{equation}\label{eq:kht}
-  \vdot{\vecx}{\vecht(\vecx, \vecy)} =
-  \frac{-\etax  -\etay \vdot{\vecx}{\vecy}}{\lVert -\etax\vecx  -\etay\vecy \rVert} =
-  \frac{-\etax \vdot{\vecyy}{\vecyy} - \etay\vdot{\vecxx}{\vecyy}}{\lVert -\etax\vecxx  -\etay\vecyy \rVert} =
-  \vdot{\vecyy}{\vech(\vecyy,\vecxx)}.
-\end{equation}
-As the Fresnel term takes the form $F(\vecx, \vecy) = F\left(\vdot{\vecx}{\vecy}\right)$, we can conclude
-  \begin{equation}
-    F\left(\vecvv, \vech(\vecvv, \vecl)\right) = F\left(\vdot{\vecvv}{\vech(\vecvv, \vecl)}\right) =
-    F\left(\vdot{\vecll}{\vech(\vecll,\vecv)}\right) = F\left(\vecll, \vech(\vecll,\vecv)\right).
-\end{equation}
-Getting back to the geometry term, we first note that we can rewrite $G_1(\vecv, \vech)$ as $G_1(\vecv, \vech(\vecv, \vecl))$. For ease, we change the notation to $G_1(\vecv, \vecl)$ instead of $G_1(\vecv, \vech)$, and $G_1(\vecl, \vecv)$ instead of $G_1(\vecl, \vech)$. It follows that using Equations \eqref{eq:khr} and \eqref{eq:kht} along with Equations \eqref{eq:nh} and \eqref{eq:nk} und using $\vech(\vecx,\vecy) = \vech(\vecy,\vecx)$ we get
+from which Equation~\eqref{eq:shadowing_symmetry} follows directly.
+
+\paragraph*{Fresnel term.}
+
+The Fresnel term $F(\vecv, \vech)$ in the microfacet model accounts for the proportion of light reflected vs. refracted at the micro-surface. We have to verify that
 \begin{equation}
-  \begin{split}
-  G_1(\vecvv, \vecl) &=
-  G_{1, \text{vc}}\left( \vdot{\vecvv}{\vecn}, \vdot{\vecn}{\vech(\vecvv, \vecl)}, \vdot{\vecvv}{\vech(\vecvv, \vecl)} \right)\\
-  &=  G_{1, \text{vc}}\left( \vdot{\vecv}{\vecn}, \vdot{\vecn}{\vech(\vecll, \vecv)}, \vdot{\vecll}{\vech(\vecll, \vecv)} \right) \\
-  &=  G_{1, \text{vc}}\left( \vdot{\vecv}{\vecn}, \vdot{\vecn}{\vech(\vecv, \vecll)}, \vdot{\vecll}{\vech(\vecv, \vecll)} \right) \\
-  &= G_1(\vecv, \vecll)
-  \end{split}
+F(\vecvv, \vech(\vecvv, \vecl)) = F(\vecll, \vech(\vecll, \vecv)) \ .
 \end{equation}
-and similarly $G_1(\vecl, \vecvv) = G_1(\vecll, \vecv)$ for the V-cavity masking function.
+Reflection symmetry of the Fresnel term implies
+\begin{equation}
+  F(\vecvv, \vech(\vecvv, \vecl)) = F(\vecv, \vech(\vecv, \vecll))
+\end{equation}
+and reciprocity symmetry further implies
+\begin{equation}
+  F(\vecv, \vech(\vecv, \vecll)) = F(\vecll, \vech(\vecll, \vecv)) \ .
+\end{equation}
+from which the desired equality follows.
+
+\paragraph*{Summary.}
+
 In summary, we can conclude the reciprocity symmetry of the BRDF
 \begin{equation}
   \begin{split}
   f_{r,\text{retro}}(\vecv, \vecl) =
   f_r(\vecvv, \vecl) &=
-  \frac{D(\vech(\vecvv, \vecl)) \, G_{2}(\vecvv, \vecl) \, F\left(\vecvv, \vech(\vecvv, \vecl)\right)}{4 \vdot{\vecvv}{\vecn} \vdot{\vecl}{\vecn} }\\
+  \frac{D(\vech(\vecvv, \vecl)) \, G_{2}(\vecvv, \vecl) \, F\left(\vecvv, \vech(\vecvv, \vecl)\right)}{4 \avdot{\vecvv}{\vecn} \avdot{\vecl}{\vecn} }\\
   &=
-  \frac{D(\vech(\vecll, \vecv)) \, G_{2}(\vecll, \vecv) \, F\left(\vecll, \vech(\vecll,\vecv)\right)}{4 \vdot{\vecv}{\vecn} \vdot{\vecll}{\vecn} }\\
+  \frac{D(\vech(\vecll, \vecv)) \, G_{2}(\vecll, \vecv) \, F\left(\vecll, \vech(\vecll,\vecv)\right)}{4 \avdot{\vecv}{\vecn} \avdot{\vecll}{\vecn} }\\
   &=
   f_r(\vecll, \vecv) =
   f_{r,\text{retro}}(\vecl, \vecv).
@@ -467,15 +447,25 @@ Analogously, we obtain the reciprocity symmetry requirement of the BTDF
     \frac{\etav^2}{\etal^2}f_{t,\text{retro}}(\vecl, \vecv).
   \end{split}
 \end{equation}
+
+\section{Energy Conservation of MRM}
+
+\label{sec:energy_conservation}
+
+We now verify that the retro-reflective microfacet model fulfills energy conservation, i.e. that the directional albedos fulfill
+\begin{equation}
+  \rho_{r, \text{retro}}(\vecv) + \rho_{t, \text{retro}}(\vecv) \leq 1.
+\end{equation}
+
 For the directional albedos we simply have
 \begin{equation}
   \begin{split}
   \rho_{r, \text{retro}}(\vecv) =
-  \int_{\Omega_{\vecv}} f_{r, \text{retro}}(\vecv, \vecl) \vdot{\vecl}{\vecn} d\vecl =
-  \int_{\Omega_{\vecvv}} f_r(\vecvv, \vecl) \vdot{\vecl}{\vecn} d\vecl = \rho_r(\vecvv),\\
+  \int_{\Omega_{\vecv}} f_{r, \text{retro}}(\vecv, \vecl) \avdot{\vecl}{\vecn} \diff\vecl =
+  \int_{\Omega_{\vecvv}} f_r(\vecvv, \vecl) \avdot{\vecl}{\vecn} \diff\vecl = \rho_r(\vecvv),\\
   \rho_{t, \text{retro}}(\vecv) =
-  \int_{\Omega_{-\vecv}} f_{t, \text{retro}}(\vecv, \vecl) \avdot{\vecl}{\vecn} d\vecl =
-  \int_{\Omega_{-\vecvv}} f_t(\vecvv, \vecl) \avdot{\vecl}{\vecn} d\vecl = \rho_t(\vecvv),
+  \int_{\Omega_{-\vecv}} f_{t, \text{retro}}(\vecv, \vecl) \avdot{\vecl}{\vecn} \diff\vecl =
+  \int_{\Omega_{-\vecvv}} f_t(\vecvv, \vecl) \avdot{\vecl}{\vecn} \diff\vecl = \rho_t(\vecvv),
   \end{split}
 \end{equation}
 i.e. we get the albedo of the regular microfacet BSDF for the reflected direction.
@@ -490,6 +480,7 @@ As the original microfacet BSDF fulfills energy conversion, the retro-reflective
 %%   = 1.
 %%   \end{split}
 %% \end{equation}
+
 We further note that under our requirement of a reflection-symmetric microfacet normal distribution, the geometric
 configurations for $\vecv$ and $\vecvv$ are identical.
 Hence we can conclude $\rho_r(\vecv) = \rho_r(\vecvv)$ and $\rho_t(\vecv) = \rho_t(\vecvv)$, which in turn implies that the albedos of forward and retro-reflection are the same, i.e. $\rho_{r, \text{retro}}(\vecv) = \rho_r(\vecv)$ and $\rho_{t, \text{retro}}(\vecv) = \rho_t(\vecv)$.
@@ -531,15 +522,15 @@ Eval_result eval_bsdf_retro(vec3 V, vec3 L, vec3 N, Bsdf_params params)
 }
 \end{lstlisting}
 
+\newpage
+
 \section{Results and Discussion}
 
 \label{sec:results}
 
 \paragraph*{Comparison to measured data}
 
-Figure~\ref{fig:data_fit} shows a fit of the retro-reflective MRM model (in red) to the measured BRDF of retro-reflective tape (in blue) from \cite{BelcourBackvector}. This is the "yellow tape" sample from their dataset, illuminated at three different light source angles $\theta_L \in \{15^\circ, 30^\circ, 60^\circ\}$ (in the plane of incidence).  The MRM model provides a reasonably good match to the retro-reflective peak using a roughness of $r = 0.23$, together with ``F82-tint'' Fresnel with $F_0=0.19$ and $F_{82} = 0$.
-
-\begin{figure}[!b]
+\begin{figure}[!t]
   \begin{center}
     \includegraphics[width=0.99\textwidth]{figures/brdf_theta_L_plots.pdf}
   \end{center}
@@ -547,53 +538,47 @@ Figure~\ref{fig:data_fit} shows a fit of the retro-reflective MRM model (in red)
   \label{fig:data_fit}
 \end{figure}
 
-\newpage
-
-\begin{figure}[!!t]
-    \centering
-    \includegraphics[width=0.3\linewidth]{figures/conductor/cropped/classic_angle_0_cropped.png}
-    \includegraphics[width=0.3\linewidth]{figures/conductor/cropped/classic_angle_45_cropped.png}
-    \includegraphics[width=0.3\linewidth]{figures/conductor/cropped/classic_angle_90_cropped.png} \\
-    \vspace{0.06cm}
-    \includegraphics[width=0.3\linewidth]{figures/conductor/cropped/retro_angle_0_cropped.png}
-    \includegraphics[width=0.3\linewidth]{figures/conductor/cropped/retro_angle_45_cropped.png}
-    \includegraphics[width=0.3\linewidth]{figures/conductor/cropped/retro_angle_90_cropped.png}
-  \captionsetup{font=small}
-  \caption{Renders of a metallic shaderball with either a classic GGX (top row) or retro-reflective MRM material (bottom row) applied, for various camera angles and a fixed light direction. The relative angle between the view and light direction is $0^\circ$ (left), $45^\circ$ (middle), and $90^\circ$ (right). \vspace{-0.5cm}}
+\begin{figure}[!b]
+  \centering
+  \begin{tikzpicture}[font=\scriptsize ]
+    \node[inner sep=1pt] (GGX0) {\includegraphics[width=0.3\linewidth,frame]{figures/conductor/cropped/classic_angle_0_cropped.png}};
+    \node[inner sep=1pt,right = 0cm of GGX0] (GGX45) {\includegraphics[width=0.3\linewidth,frame]{figures/conductor/cropped/classic_angle_45_cropped.png}};
+    \node[inner sep=1pt,right = 0cm of GGX45] (GGX90) {\includegraphics[width=0.3\linewidth,frame]{figures/conductor/cropped/classic_angle_90_cropped.png}};
+    \node[inner sep=1pt,below = 0cm of GGX0] (MRM0) {\includegraphics[width=0.3\linewidth,frame]{figures/conductor/cropped/retro_angle_0_cropped.png}};
+    \node[inner sep=1pt,right = 0cm of MRM0] (MRM45) {\includegraphics[width=0.3\linewidth,frame]{figures/conductor/cropped/retro_angle_45_cropped.png}};
+    \node[inner sep=1pt,right = 0cm of MRM45] (MRM90) {\includegraphics[width=0.3\linewidth,frame]{figures/conductor/cropped/retro_angle_90_cropped.png}};
+    \node[inner sep=1pt,above = 2pt of GGX0] { \textbf{$\Delta\theta_{vl}=0^\circ$} };
+    \node[inner sep=1pt,above = 2pt of GGX45] { \textbf{$\Delta\theta_{vl}=45^\circ$} };
+    \node[inner sep=1pt,above = 2pt of GGX90] { \textbf{$\Delta\theta_{vl}=90^\circ$} };
+    \node[inner sep=1pt,left = 1pt of GGX0, anchor=south,rotate=90] { GGX };
+    \node[inner sep=1pt,left = 1pt of MRM0, anchor=south,rotate=90] { MRM };
+  \end{tikzpicture}
+  \caption{Renders of a metallic shaderball with either a classic GGX (top row) or retro-reflective MRM material (bottom row) applied, for various camera angles and a fixed light direction, with relative angle between the view and light direction $\Delta\theta_{vl} \in \{0^\circ, 45^\circ, 90^\circ\}$.}
   \label{fig:conductor_renders}
 \end{figure}
 
-\begin{figure}[!b]
+\begin{figure}[!htb]
   \centering
-  \begin{tikzpicture}[font=\footnotesize]
+  \begin{tikzpicture}[font=\scriptsize ]
     \node[inner sep=1pt] (Class1) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/classic_ior_1_cropped_label.png }};
-    \node[inner sep=1pt,right = 0cm of Class1] (MRM1) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/retroRT_ior_1_cropped_label.png }};
-    \node[inner sep=1pt,right = 0cm of MRM1] (Mixed1) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/retroR_ior_1_cropped_label.png }};
-
-    \node[inner sep=1pt,below = 0cm of Class1] (Class15) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/classic_ior_1.5_cropped_label.png }};
-    \node[inner sep=1pt,right = 0cm of Class15] (MRM15) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/retroRT_ior_1.5_cropped_label.png }};
-    \node[inner sep=1pt,right = 0cm of MRM15] (Mixed15) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/retroR_ior_1.5_cropped_label.png }};
-
+    \node[inner sep=1pt,right = 0cm of Class1] (MRM1) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/retroRT_ior_1_cropped.png }};
+    \node[inner sep=1pt,right = 0cm of MRM1] (Mixed1) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/retroR_ior_1_cropped.png }};
+    \node[inner sep=1pt,below = 0cm of Class1] (Class15) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/classic_ior_1.5_cropped.png }};
+    \node[inner sep=1pt,right = 0cm of Class15] (MRM15) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/retroRT_ior_1.5_cropped.png }};
+    \node[inner sep=1pt,right = 0cm of MRM15] (Mixed15) {\includegraphics[width=0.3\linewidth,frame]{figures/dielectric/cropped/retroR_ior_1.5_cropped.png }};
     \node[inner sep=1pt,above = 2pt of Class1] { \textbf{Classical Microfacet} };
     \node[inner sep=1pt,above = 2pt of MRM1] { \textbf{Full retro-reflective MRM} };
     \node[inner sep=1pt,above = 11.5pt of Mixed1] { \textbf{Mixed MRM (BRDF)} };
     \node[inner sep=1pt,above = 0.5pt of Mixed1] { \textbf{and Classical (BTDF)} };
-
     \node[inner sep=1pt,left = 1pt of Class1, anchor=south,rotate=90] { $\mathbf{\boldsymbol{\eta} = 1}$ };
     \node[inner sep=1pt,left = 1pt of Class15, anchor=south,rotate=90] { $\mathbf{\boldsymbol{\eta} = 1.5}$ };
   \end{tikzpicture}
-    % \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/classic_ior_1_cropped_label.png }
-    % \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroRT_ior_1_cropped_label.png }
-    % \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroR_ior_1_cropped_label.png } \\
-    % \vspace{0.06cm}
-    % \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/classic_ior_1.5_cropped_label.png }
-    % \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroRT_ior_1.5_cropped_label.png}
-    % \includegraphics[width=0.3\linewidth]{figures/dielectric/cropped/retroR_ior_1.5_cropped_label.png }
   \caption{Renders of a glass shaderball illuminated from the side. The index of refraction is $1.0$ (top) or $1.5$ (bottom). From left to right: classic microfacet BSDF (left), retro-reflective BSDF (middle), and combined retro-reflective BRDF and classic BTDF (right).  }
   \label{fig:dielectric_renders}
 \end{figure}
 
-\newpage
+
+Figure~\ref{fig:data_fit} shows a fit of the retro-reflective MRM model (in red) to the measured BRDF of retro-reflective tape (in blue) from \cite{BelcourBackvector}. This is the "yellow tape" sample from their dataset, illuminated at three different light source angles $\theta_L \in \{15^\circ, 30^\circ, 60^\circ\}$ (in the plane of incidence).  The MRM model provides a reasonably good match to the retro-reflective peak using a roughness of $r = 0.23$, together with ``F82-tint'' Fresnel with $F_0=0.19$ and $F_{82} = 0$.
 
 \paragraph*{Incorporation in a standard microfacet model}
 
@@ -615,11 +600,6 @@ We have presented a retro-reflective microfacet model (MRM) based on a simple mo
 The model is straightforward to implement in existing renderers supporting microfacet BSDFs, as it only requires reflecting the view direction about the surface normal before evaluating the standard microfacet model.
 We have shown that the model fulfills symmetry and energy conservation requirements, making it a plausible microfacet model.
 The retro-reflective microfacet model can be used to represent materials with strong retro-reflective properties, such as certain fabrics or retro-reflective coatings.
-
-
-\paragraph{Further work.}
-For future work it would be interesting to further validate the MRM retro-reflective microfacet model against measured retro-reflective materials.
-
 
 \bibliographystyle{jcgt}
 \bibliography{citations}
