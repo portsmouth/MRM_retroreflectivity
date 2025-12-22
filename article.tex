@@ -190,7 +190,7 @@ In Section \ref{sec:back_vector_microfacets}, we detail the derivation of MRM as
 In Section~\ref{sec:implementation}, we sketch how the model can be implemented in practice, which is done trivially by reusing existing microfacet BSDF implementations. Finally in Section~\ref{sec:results}, we provide a comparison with measured data and some visual results.
 
 
-\section{Back-vector Modification of Microfacet Models}
+\section{MRM as Back-vector Modification of Microfacet Models}
 
 \label{sec:back_vector_microfacets}
 
@@ -269,7 +269,7 @@ In this work, we show that using the \emph{back vector}~\cite{BelcourBackvector}
 %\end{equation}
 %which is generally applicable for distributions with symmetry around the normal.
 
-To achieve retro-reflection, we modify the microfacet model by changing the microfacet normal selector from the half-vector to the \emph{back-vector}~\cite{BelcourBackvector}, defined as
+To achieve retro-reflection, in MRM we modify the microfacet model by changing the microfacet normal selector from the half-vector to the \emph{back-vector}~\cite{BelcourBackvector}, defined as
 \begin{equation}
   \vecbr(\vecv, \vecl) = \vechr(\vecvv, \vecl) = \frac{\vecvv + \vecl}{\lVert \vecvv + \vecl \rVert}, \text{ with } \vecvv = \text{reflect}(\vecv, \vecn),
 \end{equation}
@@ -345,7 +345,7 @@ We assume Smith or V-cavity masking is applied to the mirrored microfacet distri
 %\todo{\tiny Laurent: I think we could extract the shadowing from Matthias derivation here. The other way to justify the derivation of the full model is to highlight that Smith's shadowing/masking does not depend on the microfacet (appart from the sideness). Hence, whatever the microfacet selector (as long as the sideness matches), the shadowing/masking is the same. Since $\vecv$ and $\vecvv$ share the same slope, we can exchange them in the equation.}
 
 \paragraph*{Final form.}
-It follows from the above back-vector modifications that our retroreflective model takes the trivial form of simply replacing $\vecv$ by $\vecvv$ in the original microfacet BRDF and BTDF expressions:
+It follows from the above back-vector modifications that our MRM retroreflective model takes the trivial form of simply replacing $\vecv$ by $\vecvv$ in the original microfacet BRDF and BTDF expressions:
 \begin{equation} \label{eq:retro_microfacet_model}
   %  f_\text{MRM}(\vecv, \vecl) = f(\vecvv, \vecl) = \frac{D(\vecb) \, G_{2}(\vecvv,\vecl) \, F(\vecvv, \vecb)}{4 \vdot{\vecvv}{\vecn} \vdot{\vecl}{\vecn}}
   f_\text{MRM}(\vecv, \vecl) =
@@ -517,7 +517,7 @@ Given an implementation of a regular microfacet BSDF, extending it to retro-refl
   This may include low variance sampling using the domain of visible microfacets \cite{HeitzIS}.
 \item
   As the albedos of standard BSDF and retro-reflective BSDF are identical, compensating for the energy loss of microfacet single-scattering via a diffuse term \cite{KelemenBRDF, Hill2017PBR} or normalization \cite{TurquinMultipleScattering} can thus be realized using the same data tables. The exact energy compensation of \citet{Heitz2016} can also be applied unchanged.
-\item An implementation may optionally wish to provide a blend between regular and retro-reflective microfacet behavior, to model materials with partial retro-reflective properties. This can be achieved simply by blending $f_{r, \text{MRM}}$ and $f_r$, or alternatively via a stochastic selection (e.g. one-sample MIS \cite{Veach1998}) between the original $\vecv$ and reflected $\vecvv$ view directions during sampling.
+\item An implementation may optionally wish to provide a blend between regular and retro-reflective microfacet behavior, to model materials with partial retro-reflective properties (for example this is required in OpenPBR \cite{OpenPBR2024}). This can be achieved simply by blending $f_{r, \text{MRM}}$ and $f_r$, or alternatively via a stochastic selection (e.g. one-sample MIS \cite{Veach1998}) between the original $\vecv$ and reflected $\vecvv$ view directions during sampling.
 \end{itemize}
 
 %\noindent
@@ -534,6 +534,7 @@ Sample_result sample_bsdf_retro(vec3 V, vec3 L, vec3 N, Bsdf_params params)
     vec3 Vp = -V + 2.0 * dot(V, N) * N;
     return sample_bsdf(Vp, L, N, params);
 }
+
 Eval_result eval_bsdf_retro(vec3 V, vec3 L, vec3 N, Bsdf_params params)
 {
     vec3 Vp = -V + 2.0 * dot(V, N) * N;
@@ -607,8 +608,7 @@ Figure~\ref{fig:conductor_renders} shows renders of a shaderball with either a c
 
 \paragraph*{Combination of BRDF and BTDF}
 
-The albedo is identical for forward- and retro-reflective BRDF as well as BTDF, which allows to arbitrarily combine forward- and retro-reflective variants into a BSDF.
-When constructing an artist-controllable retro-reflective dielectric BSDF, we observed that using $f_t$ instead of $f_{t, \text{MRM}}$ yields more intuitive results, in particular for an index of refraction close to 1.
+The albedo is identical for forward- and retro-reflective BRDF as well as BTDF, which allows to arbitrarily combine forward- and retro-reflective variants into a BSDF. When constructing an artist-controllable retro-reflective dielectric BSDF, we observed that using $f_t$ instead of $f_{t, \text{MRM}}$ yields more intuitive results, in particular for an index of refraction close to 1. An implementation could reasonably choose either this formulation or the full retro-reflective BTDF, depending on the desired effect.
 
 Figure~\ref{fig:dielectric_renders} demonstrates this in renders of a dielectric shaderball, where the IOR of the dielectric material is either $1.0$ (top row) or $1.5$ (bottom row).
 Left to right we show three combinations of BRDF and BTDF: the classic microfacet BSDF $f_r$ and BTDF $f_t$ (left), the retro-reflective BRDF $f_{r,\text{MRM}}$ plus retro-reflective BTDF $f_{t,\text{MRM}}$ (middle), and retro-reflective BRDF $f_{r,\text{MRM}}$ combined with the classic (non-retroreflective) BTDF $f_t$ (right).
