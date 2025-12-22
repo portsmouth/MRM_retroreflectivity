@@ -516,7 +516,7 @@ Given an implementation of a regular microfacet BSDF, extending it to retro-refl
   Similarly, importance sampling of $\vecl$ given $\vecv$ can be realized by replacing $\vecv$ with $\vecvv$ upfront and then importance sampling the regular microfacet BSDF.
   This may include low variance sampling using the domain of visible microfacets \cite{HeitzIS}.
 \item
-  As the albedos of standard BSDF and retro-reflective BSDF are identical, compensating for the energy loss of microfacet single-scattering via a diffuse term \cite{KelemenBRDF, Hill2017PBR} or normalization \cite{TurquinMultipleScattering} can thus be realized using the same data tables. The exact energy compensation of \citet{Heitz2016} can also be applied unchanged.
+  As the albedos of standard BSDF and retro-reflective BSDF are identical, compensating for the energy loss of microfacet single-scattering via a diffuse term \cite{KelemenBRDF, Kulla17} or normalization \cite{TurquinMultipleScattering} can thus be realized using the same data tables. The exact energy compensation of \citet{Heitz2016} can also be applied unchanged.
 \item An implementation may optionally wish to provide a blend between regular and retro-reflective microfacet behavior, to model materials with partial retro-reflective properties (for example this is required in OpenPBR \cite{OpenPBR2024}). This can be achieved simply by blending $f_{r, \text{MRM}}$ and $f_r$, or alternatively via a stochastic selection (e.g. one-sample MIS \cite{Veach1998}) between the original $\vecv$ and reflected $\vecvv$ view directions during sampling.
 \end{itemize}
 
