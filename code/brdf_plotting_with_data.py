@@ -111,9 +111,9 @@ for idx, (tL, data_points) in enumerate(sorted(brdf_dict_simple.items())):
     # Plot BRDF values vs theta_V (in degrees)
     axes[idx].clear()  # Clear previous plot
     axes[idx].plot(theta_V_vals_deg, brdf_vals, 'o-', linewidth=1.5, markersize=4)
-    axes[idx].set_xlabel('$\\theta_V$ (degrees)', fontsize=12)
-    axes[idx].set_ylabel('BRDF value', fontsize=12)
-    axes[idx].set_title(f'$\\theta_L = {tL_deg:.2f}^\\circ$', fontsize=14)
+    axes[idx].set_xlabel('$\\theta_V$ (degrees)', fontsize=16)
+    axes[idx].set_ylabel('BRDF value', fontsize=16)
+    axes[idx].set_title(f'$\\theta_L = {tL_deg:.2f}^\\circ$', fontsize=16)
     axes[idx].set_xlim(-90, 90)
     axes[idx].set_ylim(0.001, 50)
     axes[idx].set_yscale('log')

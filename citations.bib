@@ -24,6 +24,47 @@
    issn    = {2331-7418}
 }
 
+@article{Heitz2016,
+author = {Heitz, Eric and Hanika, Johannes and d'Eon, Eugene and Dachsbacher, Carsten},
+title = {Multiple-scattering microfacet BSDFs with the Smith model},
+year = {2016},
+issue_date = {July 2016},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {35},
+number = {4},
+issn = {0730-0301},
+url = {https://doi.org/10.1145/2897824.2925943},
+doi = {10.1145/2897824.2925943},
+abstract = {Modeling multiple scattering in microfacet theory is considered an important open problem because a non-negligible portion of the energy leaving rough surfaces is due to paths that bounce multiple times. In this paper we derive the missing multiple-scattering components of the popular family of BSDFs based on the Smith microsurface model. Our derivations are based solely on the original assumptions of the Smith model. We validate our BSDFs using raytracing simulations of explicit random Beckmann surfaces.Our main insight is that the microfacet theory for surfaces with the Smith model can be derived as a special case of the microflake theory for volumes, with additional constraints to enforce the presence of a sharp interface, i.e. to transform the volume into a surface. We derive new free-path distributions and phase functions such that plane-parallel scattering from a microvolume with these distributions exactly produces the BSDF based on the Smith microsurface model, but with the addition of higher-order scattering.With this new formulation, we derive multiple-scattering micro-facet BSDFs made of either diffuse, conductive, or dielectric material. Our resulting BSDFs are reciprocal, energy conserving, and support popular anisotropic parametric normal distribution functions such as Beckmann and GGX. While we do not provide closed-form expressions for the BSDFs, they are mathematically well-defined and can be evaluated at arbitrary precision. We show how to practically use them with Monte Carlo physically based rendering algorithms by providing analytic importance sampling and unbiased stochastic evaluation. Our implementation is analytic and does not use per-BSDF precomputed data, which makes our BSDFs usable with textured albedos, roughness, and anisotropy.},
+journal = {ACM Trans. Graph.},
+month = jul,
+articleno = {58},
+numpages = {14},
+keywords = {BRDF, BSDF, microfacet theory, multiple scattering}
+}
+
+
+
+@article{Hericz2016,
+author = {Héricz, D. and Sarkadi, T. and Erdei, Gábor and Lazuech, T. and Lenk, Sándor and Koppa, Pal},
+year = {2017},
+month = {05},
+pages = {3969-3976},
+title = {Simulation of small- and wide-angle scattering properties of glass-bead retroreflectors},
+volume = {56},
+journal = {Applied Optics},
+doi = {10.1364/AO.56.003969}
+}
+
+@techreport{TurquinMultipleScattering,
+  author = {Emmanuel Turquin},
+  title = {Practical Multiple Scattering Compensation for Microfacet Models},
+  institution = {Industrial Light \& Magic},
+  year = {2019},
+  type = {Technical Report}
+}
+
 @article{HeitzIS,
   TITLE = {{Importance Sampling Microfacet-Based BSDFs using the Distribution of Visible Normals}},
   AUTHOR = {Heitz, Eric and d'Eon, Eugene},
@@ -41,6 +82,47 @@
   HAL_VERSION = {v2},
 }
 
+@article{Burgess2011,
+author = {Burgess, Greg and Shortis, Mark and Scott, P.},
+year = {2011},
+month = {09},
+pages = {743-750},
+title = {Photographic assessment of retroreflective film properties},
+volume = {66},
+journal = {Isprs Journal of Photogrammetry and Remote Sensing - ISPRS J PHOTOGRAMM},
+doi = {10.1016/j.isprsjprs.2011.07.002}
+}
+
+@techreport{OpenPBR2024,
+  title = {{O}pen{PBR} {S}urface {S}pecification v1.1},
+  author = {Zap Andersson and Paul Edmondson and Julien Guertault and Adrien Herubel and Alan King and Peter Kutz and Andréa Machizaud and Jamie Portsmouth and Frédéric Servant and Jonathan Stone},
+  institution = {Academy Software Foundation ({ASWF})},
+  year = {2024},
+  url = {https://academysoftwarefoundation.github.io/OpenPBR/}
+}
+
+@techreport{Smythe2016,
+  title       = {{MaterialX: An} Open Standard for Network-Based {CG} Object Looks},
+  institution = {Academy Software Foundation},
+  author      = {Doug Smythe and Jonathan Stone},
+  year        = {2018},
+  number     = {Specification v1.36},
+  url       = {https://materialx.org/assets/MaterialX.v1.36.Spec.pdf}
+}
+
+@phdthesis{Veach1998,
+author = {Veach, Eric},
+advisor = {Guibas, Leonidas J.},
+title = {Robust monte carlo methods for light transport simulation},
+year = {1998},
+isbn = {0591907801},
+publisher = {Stanford University},
+address = {Stanford, CA, USA},
+abstract = {Light transport algorithms generate realistic images by simulating the emission and scattering of light in an artificial environment. Applications include lighting design, architecture, and computer animation, while related engineering disciplines include neutron transport and radiative heat transfer. The main challenge with these algorithms is the high complexity of the geometric, scattering, and illumination models used. In this dissertation, we develop new Monte Carlo techniques that greatly extend the range of input models for which light transport simulations are practical. We start by developing a rigorous theoretical basis for bidirectional light transport algorithms (those that combine direct and adjoint techniques). We propose a new formulation based on linear operators, such that for any physically valid input scene, the transport operators are symmetric. We also show how light transport can be formulated as an integral over a space of paths. This framework allows new sampling and integration techniques to be applied, such as the Metropolis sampling method.Our statistical contributions include multiple importance sampling, a new variance reduction technique that can greatly increase the robustness of Monte Carlo integration. It uses more than one sampling technique to evaluate an integral, and combines these samples in a way that is provably close to optimal.Finally, we propose new Monte Carlo light transport algorithms. Bidirectional path tracing uses a family of different path sampling techniques that generate some path vertices starting from a light source, and some starting from a sensor. We show that when these techniques are combined using multiple importance sampling, a large range of difficult lighting effects can be handled efficiently.The second algorithm we describe is Metropolis light transport, inspired by the Metropolis sampling method from computational physics. Paths are generated by following a random walk through path space, such that the probability density of visiting each path is proportional the contribution it makes to the ideal image. The resulting algorithm is unbiased, handles arbitrary geometry and materials, and can be orders of magnitude more efficient than previous unbiased approaches for difficult lighting problems. To our knowledge, this is the first application of the Metropolis method to transport problems of any kind.},
+note = {AAI9837162}
+}
+
+
 @article{BelcourBackvector,
   TITLE = {{BRDF Measurements and Analysis of Retroreflective Materials}},
   AUTHOR = {Belcour, Laurent and Pacanowski, Romain and Delahaie, Marion and Laville-Geay, Aude and Eupherte, Laure},
@@ -57,6 +139,23 @@
   PDF = {https://inria.hal.science/hal-01083366v1/file/osa-revtex4-1.pdf},
   HAL_ID = {hal-01083366},
   HAL_VERSION = {v1},
+}
+
+@inproceedings{Hill2017PBR,
+author = {Hill, Stephen and McAuley, Stephen and Conty, Alejandro and Drobot, Micha\l{} and Heitz, Eric and Hery, Christophe and Kulla, Christopher and Lanz, Jon and Ling, Junyi and Walster, Nathan and Xie, Feng and Micciulla, Adam and Villemin, Ryusuke},
+title = {Physically based shading in theory and practice},
+year = {2017},
+isbn = {9781450350143},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3084873.3084893},
+doi = {10.1145/3084873.3084893},
+abstract = {Real-Time Line and Disk Light ShadingEric Heitz and Stephen HillAt SIGGRAPH 2016, we presented a new real-time area lighting technique for polygonal sources. In this talk, we will show how the underlying framework, based on Linearly Transformed Cosines (LTCs), can be extended to support line and disk lights. We will discuss the theory behind these approaches as well as practical implementation tips and tricks concerning numerical precision and performance.Physically Based Shading at DreamWorks AnimationFeng Xie and Jon LanzPDI/DreamWorks was one of the first animation studios to adopt global illumination in production rendering. Concurrently, we have also been developing and applying physically based shading principles to improve the consistency and realism of our material models, while balancing the need for intuitive artistic control required for feature animations.In this talk, we will start by presenting the evolution of physically based shading in our films. Then we will present some fundamental principles with respect to importance sampling and energy conservation in our BSDF framework with a pragmatic and efficient approach to transimssion fresnel modeling. Finally, we will present our new set of physically plausible production shaders for our new path tracer, which includes our new hard surface shader, our approach to material layering and some new developments in fabric and glitter shading.Volumetric Skin and Fabric Shading at FramestoreNathan WalsterRecent advances in shading have led to the use of free-path sampling to better solve complex light transport within volumetric materials. In this talk, we describe how we have implemented these ideas and techniques within a production environment, their application on recent shows---such as Guardians of the Galaxy Vol. 2 and Alien: Covenant---and the effect this has had on artists' workflow within our studio.Practical Multilayered Materials in Call of Duty: Infinite WarfareMicha\l{} DrobotThis talk presents a practical approach to multilayer, physically based surface rendering, specifically optimized for Forward+ rendering pipelines. The presented pipeline allows for the creation of complex surface by decomposing them into different mediums, each represented by a simple BRDF/BSSRDF and set of simple, physical macro properties, such as thickness, scattering and absorption. The described model is explained via practical examples of common multilayer materials such as car paint, lacquered wood, ice, and semi-translucent plastics. Finally, the talk describes intrinsic implementation details for achieving a low performance budget for 60 Hz titles as well as supporting multiple rendering modes: opaque, alpha blend, and refractive blend.Pixar's Foundation for Materials: PxrSurface and PxrMarschnerHairChristophe Hery and Junyi LingPixar's Foundation Materials, PxrSurface and PxrMarschnerHair, began shipping with RenderMan 21.PxrSurface is the standard surface shader developed in the studio for Finding Dory and used more recently for Cars 3 and Coco. This shader contains nine lobes that cover the entire gamut of surface materials for these two films: diffuse, three specular, iridescence, fuzz, subsurface, single scatter and a glass lobe. Each of these BxDF lobes is energy conserving, but conservation is not enforced between lobes on the surface level. We use parameter layering methods to feed a PxrSurface with pre-layered material descriptions. This simultaneously allows us the flexibility of a multilayered shading pipeline together with efficient and consistent rendering behavior.We also implemented our individual BxDFs with the latest state-of-the-art techniques. For example, our three specular lobes can be switched between Beckmann and GGX modes. Many compound materials have multiple layers of specular; these lobes interact with each other modulated by the Fresnel effect of the clearcoat layer. We also leverage LEADR mapping to recreate sub-displacement micro features such as metal flakes and clearcoat scratches.Another example is that PxrSurface ships with Jensen, d'Eon and Burley diffusion profiles. Additionally, we implemented a novel subsurface model using path-traced volumetric scattering, which represents a significant advancement. It captures zero and single scattering events of subsurface scattering implicit to the path-tracing algorithm. The user can adjust the phase-function of the scattering events and change the extinction profiles, and it also comes with standardized color inversion features for intuitive albedo input. To the best of our knowledge, this is the first commercially available rendering system to model these features and the rendering cost is comparable to classic diffusion subsurface scattering models.PxrMarschnerHair implements Marschner's seminal hair illumination model with importance sampling. We also account for the residual energy left after the R, TT, TRT and glint lobes, through a fifth diffuse lobe. We show that this hair surface shader can reproduce dark and blonde hair effectively in a path-traced production context. Volumetric scattering from fiber to fiber changes the perceived hue and saturation of a groom, so we also provide a color inversion scheme to invert input albedos, such that the artistic inputs are straightforward and intuitive.Revisiting Physically Based Shading at ImageworksChristopher Kulla and Alejandro ContyTwo years ago, the rendering and shading groups at Sony Imageworks embarked on a project to review the structure of our physically based shaders in an effort to simplify their implementation, improve quality and pave the way to take advantage of future improvements in light transport algorithms.We started from classic microfacet BRDF building blocks and investigated energy conservation and artist friendly parametrizations. We continued by unifying volume rendering and subsurface scattering algorithms and put in place a system for medium tracking to improve the setup of nested media. Finally, from all these building blocks, we rebuilt our artist-facing shaders with a simplified interface and a more flexible layering approach through parameter blending.Our talk will discuss the details of our various building blocks, what worked and what didn't, as well as some future research directions we are still interested in exploring.},
+booktitle = {ACM SIGGRAPH 2017 Courses},
+articleno = {7},
+numpages = {8},
+location = {Los Angeles, California},
+series = {SIGGRAPH '17}
 }
 
 @techreport{OpenPBR,
