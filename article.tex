@@ -254,7 +254,7 @@ In this work, we show that using the \emph{back vector}~\cite{BelcourBackvector}
 %G_{2}(\vecv, \vecl, \vech) = G_1(\vecv, \vech) \, G_1(\vecl, \vech)\ .
 %\end{equation}
 %Mathematically, the BSDF is plausible if $G_{2}$ is symmetric w.r.t. to exchanging $\vecv$ and $\vecl$, fulfills
-%$G_{2}(\vecv, \vech) \leq G_1(\vecv, \vecl)$, and if $G_1$ further establishes the correct projected area of visible micro-surfaces \cite{HeitzMicrofacet}
+%$G_{2}(\vecv, \vech) \leq G_1(\vecv, \vecl)$, and if $G_1$ further establishes the correct projected area of visible microsurfaces \cite{HeitzMicrofacet}
 %\begin{equation}\label{eq:visible}
 %  \avdot{\vecv}{\vecn} = \int_{\Omega_{\vecv}} G_1(\vecv, \vech) \cldot{\vecv}{\vech} D(\vech) \diff\vech.
 %\end{equation}
@@ -307,7 +307,7 @@ As such, we update the formulation of $\rho(\vecv, \vecm)$~(Equation (11) of \ci
   f_r^m(\vecv, \vecl, \vecm) = F(\vecvv, \vecm) \dfrac{\delta(\vecb_r, \vecm) }{4 \left| \vdot{\vecvv}{\vecb_r} \right|^2}.
 \end{equation}
 We used the fact that $\left| \vdot{\vecl}{\vecb} \right| = \left| \vdot{\vecvv}{\vecb} \right|$.
-Similarly, for the transmissive microsurfacet BTDF (Equation~(18) of \citet{WalterMicrofacet}) we get
+Similarly, for the transmissive microsurface BTDF (Equation~(18) of \citet{WalterMicrofacet}) we get
 \begin{equation}
   f_t^m(\vecv, \vecl, \vecm) = \left(1-F(\vecvv, \vecm)\right) \dfrac{\delta(\vecb_t, \vecm) \eta_o^2 }{\left( \eta_i \vdot{\vecv^\prime}{\vecb_t} + \eta_o \vdot{\vecl}{\vecb_t} \right)^2}.
 \end{equation}
@@ -318,13 +318,13 @@ The term $G_{2}(\vecv,\vecl,\vechr)$ in the microfacet model accounts for shadow
 
 \enlargethispage{1\baselineskip}
 
-The shadowing-masking function $G_{2}(\vecv, \vecl, \vech)$ accounts for the geometrical occlusion of the incident and outgoing rays by the local microsurface geometry. It combines the visibility masking function $G_1(\vecv, \vech)$ for the view direction and the visibility shadowing function $G_1(\vecl, \vech)$ for the light direction: \footnote{This is the seperable form commonly used in microfacet models; see Section 6 of \citet{HeitzMicrofacet} for a discussion of separable vs. non-separable shadowing-masking functions. In general, $G_{2}(\vecv, \vecl, \vech)$ is some function of $G_1(\vecv, \vech)$ and $G_1(\vecl, \vech)$, and thus reciprocity still holds.}
+The shadowing-masking function $G_{2}(\vecv, \vecl, \vech)$ accounts for the geometrical occlusion of the incident and outgoing rays by the local microsurface geometry. It combines the visibility masking function $G_1(\vecv, \vech)$ for the view direction and the visibility shadowing function $G_1(\vecl, \vech)$ for the light direction: \footnote{This is the separable form commonly used in microfacet models; see Section 6 of \citet{HeitzMicrofacet} for a discussion of separable vs. non-separable shadowing-masking functions. In general, $G_{2}(\vecv, \vecl, \vech)$ is some function of $G_1(\vecv, \vech)$ and $G_1(\vecl, \vech)$, and thus reciprocity still holds.}
 %In the case of independent shadowing and masking, it is common to use the separable form\footnote{See Section 6 of \citet{HeitzMicrofacet} for a discussion of separable vs. non-separable shadowing-masking functions. Our derivation holds for any valid $G_2$ function, but we focus here on the separable case for simplicity.}
 \begin{equation}
 G_{2}(\vecv, \vecl, \vech) = G_1(\vecv, \vech) \, G_1(\vecl, \vech)\ .
 \end{equation}
 %Mathematically, the BSDF is plausible if $G_{2}$ is symmetric w.r.t. to exchanging $\vecv$ and $\vecl$, fulfills
-%$G_{2}(\vecv, \vech) \leq G_1(\vecv, \vecl)$, and if $G_1$ further establishes the correct projected area of visible micro-surfaces \cite{HeitzMicrofacet}
+%$G_{2}(\vecv, \vech) \leq G_1(\vecv, \vecl)$, and if $G_1$ further establishes the correct projected area of visible microsurfaces \cite{HeitzMicrofacet}
 %\begin{equation}\label{eq:visible}
 %  \avdot{\vecv}{\vecn} = \int_{\Omega_{\vecv}} G_1(\vecv, \vech) \cldot{\vecv}{\vech} D(\vech) \diff\vech.
 %\end{equation}
@@ -416,7 +416,7 @@ from which Equation~\eqref{eq:shadowing_symmetry} follows directly.
 
 \paragraph*{Fresnel term.}
 
-The Fresnel term $F(\vecv, \vech)$ in the microfacet model accounts for the proportion of light reflected vs. refracted at the micro-surface. We have to verify that
+The Fresnel term $F(\vecv, \vech)$ in the microfacet model accounts for the proportion of light reflected vs. refracted at the microsurface. We have to verify that
 \begin{equation}
 F(\vecvv, \vech(\vecvv, \vecl)) = F(\vecll, \vech(\vecll, \vecv)) \ .
 \end{equation}
