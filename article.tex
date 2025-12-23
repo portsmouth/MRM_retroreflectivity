@@ -153,14 +153,14 @@
 
 \teaser{
   \vspace*{-0.5cm}
-    \includegraphics[width=0.3\linewidth]{figures/cone/nonretro_cone_cropped_label.png}
-    \includegraphics[width=0.3\linewidth]{figures/jacket/nonretro_jacket_cropped_label.png}
-    \includegraphics[width=0.3\linewidth]{figures/shoe/nonretro_shoe_cropped_label.png} \\
+    \includegraphics[width=0.31\linewidth]{figures/cone/nonretro_cone_cropped_label.png}
+    \includegraphics[width=0.31\linewidth]{figures/jacket/nonretro_jacket_cropped_label.png}
+    \includegraphics[width=0.31\linewidth]{figures/shoe/nonretro_shoe_cropped_label.png} \\
     \vspace{0.06cm}
-    \includegraphics[width=0.3\linewidth]{figures/cone/retro_cone_cropped_label.png}
-    \includegraphics[width=0.3\linewidth]{figures/jacket/retro_jacket_cropped_label.png}
-    \includegraphics[width=0.3\linewidth]{figures/shoe/retro_shoe_cropped_label.png}
-  \caption{Renders of our ``Minimal Retroreflective Microfacet'' (MRM) retroreflector model (bottom row) obtained by an almost trivial modification of the equivalent roughness GGX microfacet model (top row). The lighting in all cases is aligned with the view direction, exhibiting a strong retroreflective peak in the MRM model.}
+    \includegraphics[width=0.31\linewidth]{figures/cone/retro_cone_cropped_label.png}
+    \includegraphics[width=0.31\linewidth]{figures/jacket/retro_jacket_cropped_label.png}
+    \includegraphics[width=0.31\linewidth]{figures/shoe/retro_shoe_cropped_label.png}
+  \caption{Renders of our MRM retroreflector model (bottom row) obtained by an almost trivial modification of the equivalent roughness GGX microfacet model (top row). The lighting in all cases is aligned with the view direction, exhibiting a strong retroreflective peak in the MRM model.}
    \vspace{-0.5cm}
   \label{fig:teaser}
 }
@@ -170,24 +170,28 @@
 
 \begin{abstract}
   \small
-  We describe the ``Minimal Retroreflective Microfacet'' (MRM) model, which provides a simple scheme for modifying a pre-existing microfacet BSDF implementation to produce a visually plausible retroreflective result which is energy-conserving and reciprocal by construction.
+  We describe the Minimal Retroreflective Microfacet (MRM) model, which provides a simple scheme for modifying a pre-existing microfacet BSDF implementation to produce a physically plausible retroreflective result. Based on the previously published back-vector formulation, MRM can be implemented with minimal changes to existing microfacet code, making it easy to integrate into existing rendering systems. We provide verification of reciprocity and energy conservation, implementation details, and a comparison to measured data.
   \end{abstract}
 
 \section{Introduction}
 
-Rendering of retroreflective materials is useful in a variety of contexts. For safety applications such as road markings, signs, vehicles and high-visibility clothing items, retroreflective materials are heavily used (see Figure~\ref{fig:teaser} for some example renders). Realistic rendering of such materials is important for design and visualization purposes, and in a predictive rendering context for example for simulation of visibility in training of autonomous vehicles or for safety certification of road markings.
-
+Rendering of retroreflective materials is useful in a variety of contexts. For safety applications such as road markings, signs, vehicles and high-visibility clothing items, retroreflective materials are heavily used (see Figure~\ref{fig:teaser} for some example renders).
 Materials are typically designed to be retroreflective via a manufactured substructure of elements (for example sheets of micro-prisms, or glass beads) which preferentially scatter light backwards \cite{Burgess2011}.
+Realistic rendering of such materials is important for design and visualization purposes, and in a predictive rendering context for example for simulation of visibility in training of autonomous vehicles or for safety certification of road markings.
 
 \paragraph{Previous works.}
 Modeling of retroreflectivity in the surface scattering function has received relatively little attention so far.
  A number of CG models have been proposed, but typically they are either not energy-conserving, not easily integrated into existing rendering systems, or too complex to be practical for production use.
 In \citet{Neumann1999} a retroreflective model based on a modified Phong lobe was presented, but it is not energy-conserving. \citet{Edwards2006} proposed an empirical retroreflective model, but it is not reciprocal. Neither of these models were compared to physical measurements.
-\citet{Guo2017Retro} proposed a model to incorporate the retroreflectivity of prismatic sheets. However, their model only provides pure retroreflection which would lack artistic control. They later extended this model to account for imperfect retroreflection with the addition of a microfacet surface (following Beckmann's normal distribution) above the prismatic sheet~\cite{Guo2018Retro}. However, due to the coupling of retroreflection and rough refraction, they were unable to derive a close form solution for it and relied on fitting of the ground truth model. \citet{Hericz2016} proposed a retroreflective model based on ray tracing simulation of glass bead microstructures, however they also did not provide a closed form BSDF.
+\citet{Guo2017Retro} proposed a model to incorporate the retroreflectivity of prismatic sheets. However, their model only provides pure retroreflection which would lack artistic control. They later extended this model to account for imperfect retroreflection with the addition of a microfacet surface above the prismatic sheet~\cite{Guo2018Retro}. However %, due to the coupling of retroreflection and rough refraction,
+they were unable to derive a close form solution for it. %and relied on fitting of the ground truth model.
+\citet{Hericz2016} proposed a retroreflective model based on ray tracing simulation of glass bead microstructures, however they also did not provide a closed form BSDF.
+
+\enlargethispage{0.1\baselineskip}
 
 \paragraph{Our model.}
 
-For practical purposes in visual effects, we are interested in a model which is a) visually plausible and follows measured observations reasonably well, b) provably energy-conserving and reciprocal, c) efficient and easy to implement. We present here a model based on the previously published \emph{back-vector} formulation~\cite{BelcourBackvector} which meets all these requirements. It is so simple a modification to a regular microfacet model, that we term it the ``Minimal Retroreflective Microfacet'' (MRM) model which achieves a plausible ive result.
+For practical purposes in visual effects, we are interested in a model which is a) visually plausible and follows measured observations reasonably well, b) provably energy-conserving and reciprocal, c) efficient and easy to implement. We present here a model based on the previously published \emph{back-vector} formulation~\cite{BelcourBackvector} which meets all these requirements. It is so simple a modification to a regular microfacet model, that we term it the ``Minimal Retroreflective Microfacet'' (MRM) model which achieves a plausible result.
 
 In Section \ref{sec:back_vector_microfacets}, we detail the derivation of MRM as a modification of the standard microfacet model~\cite{WalterMicrofacet,HeitzMicrofacet} using the back-vector as microfacet normal selector. To check the plausibility of the model, in Section \ref{sec:reciprocity} we verify reciprocity symmetry and in Section \ref{sec:energy_conservation} we verify energy conservation.
 In Section~\ref{sec:implementation}, we sketch how the model can be implemented in practice, which is done trivially by reusing existing microfacet BSDF implementations. Finally in Section~\ref{sec:results}, we provide a comparison with measured data and some visual results.
@@ -618,7 +622,7 @@ Left to right we show three combinations of BRDF and BTDF: the classic microface
 
 \section{Conclusion}
 
-We have presented a retroreflective microfacet model (MRM) based on a simple modification of the classic microfacet BSDF. We have shown that the model fulfills reciprocity and energy conservation requirements, making it a physically plausible microfacet model. This model can be used to represent materials with strong retroreflective properties, such as certain fabrics or retroreflective coatings,  with a reasonable degree of accuracy and very efficiently. The model is straightforward to implement in existing renderers supporting microfacet BSDFs, as it only requires reflecting the view direction about the surface normal before evaluating the standard microfacet model.
+We have presented the Minimal Retroreflective Microfacet (MRM) based on a simple modification of the classic microfacet BSDF. We have shown that the model fulfills reciprocity and energy conservation requirements, making it a physically plausible microfacet model. This model can be used to represent materials with strong retroreflective properties, such as certain fabrics or retroreflective coatings,  with a reasonable degree of accuracy and very efficiently. The model is straightforward to implement in existing renderers supporting microfacet BSDFs, as it only requires reflecting the view direction about the surface normal before evaluating the standard microfacet model.
 
 Due to its simplicity and ease of integration into existing microfacet-based rendering systems, the MRM model has been proposed as a standard component in the OpenPBR material model \cite{OpenPBR2024} (and correspondingly in the MaterialX modeling framework \cite{Smythe2016}).
 
