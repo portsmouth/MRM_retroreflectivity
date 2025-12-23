@@ -170,21 +170,24 @@
 
 \begin{abstract}
   \small
-  We describe the ``Minimal Retroreflective Microfacet'' (MRM) model, which provides a simple scheme for modifying a pre-existing microfacet BSDF implementation to produce a visually plausible, energy-conserving retroreflective result.
+  We describe the ``Minimal Retroreflective Microfacet'' (MRM) model, which provides a simple scheme for modifying a pre-existing microfacet BSDF implementation to produce a visually plausible retroreflective result which is energy-conserving and reciprocal by construction.
   \end{abstract}
 
 \section{Introduction}
 
 Rendering of retroreflective materials is useful in a variety of contexts. For safety applications such as road markings, signs, vehicles and high-visibility clothing items, retroreflective materials are heavily used (see Figure~\ref{fig:teaser} for some example renders). Realistic rendering of such materials is important for design and visualization purposes, and in a predictive rendering context for example for simulation of visibility in training of autonomous vehicles or for safety certification of road markings.
 
-Materials are typically designed to be retroreflective via a manufactured substructure of elements (for example sheets of micro-prisms, or glass beads) which preferentially scatter light backwards \cite{Burgess2011}. A number of CG models have been proposed to model such materials, but typically they are either not energy-conserving, not easily integrated into existing rendering systems, or too complex to be practical for production use.
+Materials are typically designed to be retroreflective via a manufactured substructure of elements (for example sheets of micro-prisms, or glass beads) which preferentially scatter light backwards \cite{Burgess2011}.
 
 \paragraph{Previous works.}
-Modeling of retroreflectivity in the surface scattering function has received relatively little attention so far. For example, \citet{Guo2017Retro} proposed a model to incorporate the retroreflectivity of prismatic sheets. However, their model only provides pure retroreflection which would lack artistic control. They later extended this model to account for imperfect retroreflection with the addition of a microfacet surface (following Beckmann's normal distribution) above the prismatic sheet~\cite{Guo2018Retro}. However, due to the coupling of retroreflection and rough refraction, they were unable to derive a close form solution for it and relied on fitting of the ground truth model. \citet{Hericz2016} proposed a retroreflective model based on ray tracing simulation of glass bead microstructures, however they also did not provide a closed form BSDF model.
+Modeling of retroreflectivity in the surface scattering function has received relatively little attention so far.
+ A number of CG models have been proposed, but typically they are either not energy-conserving, not easily integrated into existing rendering systems, or too complex to be practical for production use.
+In \citet{Neumann1999} a retroreflective model based on a modified Phong lobe was presented, but it is not energy-conserving. \citet{Edwards2006} proposed an empirical retroreflective model, but it is not reciprocal. Neither of these models were compared to physical measurements.
+\citet{Guo2017Retro} proposed a model to incorporate the retroreflectivity of prismatic sheets. However, their model only provides pure retroreflection which would lack artistic control. They later extended this model to account for imperfect retroreflection with the addition of a microfacet surface (following Beckmann's normal distribution) above the prismatic sheet~\cite{Guo2018Retro}. However, due to the coupling of retroreflection and rough refraction, they were unable to derive a close form solution for it and relied on fitting of the ground truth model. \citet{Hericz2016} proposed a retroreflective model based on ray tracing simulation of glass bead microstructures, however they also did not provide a closed form BSDF.
 
 \paragraph{Our model.}
 
-For practical purposes in visual effects, we are interested in a model which is a) visually plausible at least and ideally follows measured observations reasonably well, b) provably energy-conserving and reciprocal, c) efficient and easy to implement, ideally a small modification to well-understood surface models. We present here a model based on the previously published \emph{back-vector} formulation~\cite{BelcourBackvector} which meets all these requirements. It is so simple a modification to a regular microfacet model, that we term it the ``Minimal Retroreflective Microfacet'' (MRM) model which achieves a plausible ive result.
+For practical purposes in visual effects, we are interested in a model which is a) visually plausible and follows measured observations reasonably well, b) provably energy-conserving and reciprocal, c) efficient and easy to implement. We present here a model based on the previously published \emph{back-vector} formulation~\cite{BelcourBackvector} which meets all these requirements. It is so simple a modification to a regular microfacet model, that we term it the ``Minimal Retroreflective Microfacet'' (MRM) model which achieves a plausible ive result.
 
 In Section \ref{sec:back_vector_microfacets}, we detail the derivation of MRM as a modification of the standard microfacet model~\cite{WalterMicrofacet,HeitzMicrofacet} using the back-vector as microfacet normal selector. To check the plausibility of the model, in Section \ref{sec:reciprocity} we verify reciprocity symmetry and in Section \ref{sec:energy_conservation} we verify energy conservation.
 In Section~\ref{sec:implementation}, we sketch how the model can be implemented in practice, which is done trivially by reusing existing microfacet BSDF implementations. Finally in Section~\ref{sec:results}, we provide a comparison with measured data and some visual results.
@@ -234,7 +237,7 @@ A microfacet BRDF \cite{WalterMicrofacet, HeitzMicrofacet} takes the form (\cite
   f_r(\vecv, \vecl) = \frac{D(\vechr) \, G_{2}(\vecv,\vecl,\vechr) \, F(\vecv, \vechr)}{4 \avdot{\vecv}{\vecn} \avdot{\vecl}{\vecn}}
   \label{eq:microfacet_brdf}
 \end{equation}
-where $D$ is the distribution of micronormals (NDF), normalized to fulfill $\int_\Omega D(\vech) (\vdot{\vecn}{\vech}) \diff\vech = 1$, $G_{2}$ is the shadowing-masking function, and $F$ is the Fresnel term. The half-vector $\vechr = \vechr(\vecv, \vecl) = \frac{\vecv + \vecl}{\lVert \vecv + \vecl \rVert}$ is used as the \textit{selector} for microfacets reflecting light from incident direction $\vecl$ to outgoing view direction $\vecv$ (\textit{i.e.} only microfacets with normals aligned with the half-vector will reflect light).
+where $D$ is the distribution of micronormals (NDF), normalized to fulfill $\int_\Omega D(\vech) (\vdot{\vecn}{\vech}) \diff\vech = 1$, $G_{2}$ is the shadowing-masking function, and $F$ is the Fresnel term. The half-vector $\vechr = \vechr(\vecv, \vecl) = \frac{\vecv + \vecl}{\lVert \vecv + \vecl \rVert}$ is used as the \textit{selector} for microfacets reflecting light from incident direction $\vecl$ to outgoing view direction $\vecv$ (i.e. only microfacets with normals aligned with the half-vector will reflect light).
 Similarly, using the half-vector of refraction $\vecht = \vecht(\vecv, \vecl) = -\frac{\left(\etav\vecv + \etal\vecl\right)}{\lVert\etav\vecv + \etal\vecl\rVert}$ (where $\etav$, $\etal$ are the IORs of the media $\vecv$, $\vecl$ point to) as selector yields the corresponding BTDF:
 \begin{equation}
   f_t(\vecv, \vecl) =
@@ -285,7 +288,7 @@ For refraction, we can construct a similar refraction back-vector $\vecbt(\vecv,
   \label{fig:backvector}
 \end{figure}
 
-As illustrated in Figure \ref{fig:backvector}, the reflection $\vecvv$ of the view direction $\vecv$ on the surface can also be interpreted as a reflection of the view direction in a ``virtual mirror'' aligned with $\vecv$ and perpendicular to the surface macronormal $\vecn$, thus turning glossy forward-reflection into glossy retroreflection.  \citet{BelcourBackvector} showed that this reflection is related to the geometry of double scattering on the microsurface. Though here, there is no direct physical interpretation of the back-vector as such a scattering mode, this interpretation can serve as a motivation why the components of the regular microfacet model still work on changing the domain to the back-vector.
+As illustrated in Figure \ref{fig:backvector}, the reflection $\vecvv$ of the view direction $\vecv$ on the surface can also be interpreted as a reflection of the view direction in a ``virtual mirror'' aligned with $\vecv$ and perpendicular to the surface macronormal $\vecn$, thus turning glossy forward-reflection into glossy retroreflection.  \citet{BelcourBackvector} showed that this reflection is related to the geometry of double scattering on the microsurface. Though here there is no direct physical interpretation of the back-vector as such a scattering mode, this interpretation can serve as a motivation why the components of the regular microfacet model still work on changing the domain to the back-vector.
 
 We now detail the mathematical consequences of using the back-vector as microfacet selector.
 
@@ -315,9 +318,7 @@ Thus for both reflection and refraction, the effect on the microsurface BSDF of 
 
 \paragraph*{Shadowing \& Masking.}
 The term $G_{2}(\vecv,\vecl,\vechr)$ in the microfacet model accounts for shadowing and masking of microfacets.
-
 \enlargethispage{1\baselineskip}
-
 The shadowing-masking function $G_{2}(\vecv, \vecl, \vech)$ accounts for the geometrical occlusion of the incident and outgoing rays by the local microsurface geometry. It combines the visibility masking function $G_1(\vecv, \vech)$ for the view direction and the visibility shadowing function $G_1(\vecl, \vech)$ for the light direction: \footnote{This is the separable form commonly used in microfacet models; see Section 6 of \citet{HeitzMicrofacet} for a discussion of separable vs. non-separable shadowing-masking functions. In general, $G_{2}(\vecv, \vecl, \vech)$ is some function of $G_1(\vecv, \vech)$ and $G_1(\vecl, \vech)$, and thus reciprocity still holds.}
 %In the case of independent shadowing and masking, it is common to use the separable form\footnote{See Section 6 of \citet{HeitzMicrofacet} for a discussion of separable vs. non-separable shadowing-masking functions. Our derivation holds for any valid $G_2$ function, but we focus here on the separable case for simplicity.}
 \begin{equation}
@@ -357,20 +358,21 @@ It follows from the above back-vector modifications that our MRM retroreflective
 \begin{figure}[!tb]
   \centering
   \includegraphics[width=0.93\linewidth]{figures/brdf_plots.pdf}
-  \caption{Comparison of the retroreflective MRM BRDF (blue) to the regular GGX microfacet BRDF (green) and rough-diffuse EON model (orange), as a function of view direction $\theta_o$ for fixed light directions $\theta_i \in {45^\circ, 80^\circ}$. The dashed lines are the roughness $0.1$ case, and the dashed lines roughness $0.666$. The grey horizontal line at $1/\pi$ is the Lambert BRDF.}
+  \caption{Comparison of the retroreflective MRM BRDF (blue) to the regular GGX microfacet BRDF (red) and rough-diffuse EON model (orange), as a function of view direction $\theta_o$ for fixed light directions $\theta_i \in \{45^\circ, 80^\circ\}$. The dashed lines are the roughness $0.1$ case, and the solid lines roughness $0.666$. The horizontal green line at $1/\pi$ is the Lambert BRDF.}
   \label{fig:brdf_plots}
 \end{figure}
 
+\paragraph*{BRDF comparison.}
 To gain some quantitative insight into the behavior of the MRM model, Figure~\ref{fig:brdf_plots} plots the BRDF values of the MRM model (green) compared to the rough diffuse (albedo 1) EON model \cite{Portsmouth2025EON} (orange) and GGX (blue). For both MRM and GGX, the Fresnel factor is set to 1.
 \enlargethispage{1\baselineskip}
 The $0.1$ roughness case is a very strong, tight peak (note the logarithmic scale on the y-axis), while the $0.666$ roughness case is a much broader peak.
 It is evident that MRM BRDF is the same as GGX,with the peak flipped to be back-scattering (at exactly $\theta_o =-\theta_i$, $\phi_o = \phi_i$).
-The $\phi_o = 45^\circ$ case demonstrates the situation when the view direction is not aligned in the same azimuthal plane. In this case. both GGX and MRM are dimmer than Lambert or EON, which compensates for the extra energy of the peaks of MRM and GGX (in which almost all of the energy is concentrated, in the reflection or retroreflection direction respectively for GGX and MRM).
+The $\phi_o = 45^\circ$ case demonstrates the situation when the view direction is not aligned in the same azimuthal plane as the light direction. In this case. both GGX and MRM are dimmer than Lambert or EON, which compensates for the extra energy of the peaks of MRM and GGX (in which almost all of the energy is concentrated, in the reflection or retroreflection direction respectively for GGX and MRM).
 
 
 \section{Plausibility of MRM}
 
-We briefly show here that the retroreflective microfacet model of Equation~\eqref{eq:retro_microfacet_model} is plausible, i.e. that it fulfills reciprocity symmetry and energy conservation requirements.
+We briefly show here that the retroreflective microfacet model of Equation~\eqref{eq:retro_microfacet_model} is physically plausible, i.e. that it fulfills reciprocity symmetry and energy conservation requirements.
 
 \enlargethispage{0.5\baselineskip}
 
@@ -384,7 +386,7 @@ We first verify that the MRM microfacet model fulfills reciprocity symmetry, i.e
 \end{equation}
 For brevity, in analogy to the notation for $\vecvv$ we generally let $\vecxx := \text{reflect}(\vecx, \vecn)$.
 We will verify explicitly that the retroreflective model is symmetric under the interchange operation $(\vecvv, \vecl) \leftrightarrow (\vecll, \vecv)$, which is the equivalent of the usual reciprocity symmetry $(\vecv, \vecl) \leftrightarrow (\vecl, \vecv)$ for regular microfacet models.
-Note that for this we will need to impose one technical assumption on $D$: we require that the microfacet normal distribution is reflection-symmetric around the normal (which is the case for all isotropic distributions and for anisotropic Phong, Beckmann, and GGX).
+Note that for this we will need to impose one technical assumption on the NDF $D$: we require that the microfacet normal distribution is reflection-symmetric around the normal (which is the case for all isotropic distributions and for anisotropic Phong, Beckmann, and GGX).
 
 \paragraph*{NDF term.}
 
@@ -436,7 +438,6 @@ In summary, we can conclude the reciprocity symmetry of the BRDF
 \begin{equation}
   f_{r,\text{MRM}}(\vecv, \vecl) = f_r(\vecvv, \vecl) =f_r(\vecll, \vecv) =  f_{r,\text{MRM}}(\vecl, \vecv).
 \end{equation}
-
 %\begin{equation}
 %  \begin{split}
 %  f_{r,\text{MRM}}(\vecv, \vecl) =
@@ -617,9 +618,11 @@ Left to right we show three combinations of BRDF and BTDF: the classic microface
 
 \section{Conclusion}
 
-We have presented a retroreflective microfacet model (MRM) based on a simple modification of the classic microfacet BSDF. We have shown that the model fulfills symmetry and energy conservation requirements, making it a plausible microfacet model. This model can be used to represent materials with strong retroreflective properties, such as certain fabrics or retroreflective coatings,  with a reasonable degree of accuracy and very efficiently. The model is straightforward to implement in existing renderers supporting microfacet BSDFs, as it only requires reflecting the view direction about the surface normal before evaluating the standard microfacet model.
+We have presented a retroreflective microfacet model (MRM) based on a simple modification of the classic microfacet BSDF. We have shown that the model fulfills reciprocity and energy conservation requirements, making it a physically plausible microfacet model. This model can be used to represent materials with strong retroreflective properties, such as certain fabrics or retroreflective coatings,  with a reasonable degree of accuracy and very efficiently. The model is straightforward to implement in existing renderers supporting microfacet BSDFs, as it only requires reflecting the view direction about the surface normal before evaluating the standard microfacet model.
 
 Due to its simplicity and ease of integration into existing microfacet-based rendering systems, the MRM model has been proposed as a standard component in the OpenPBR material model \cite{OpenPBR2024} (and correspondingly in the MaterialX modeling framework \cite{Smythe2016}).
+
+\small
 
 \bibliographystyle{jcgt}
 \bibliography{citations}

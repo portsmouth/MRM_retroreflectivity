@@ -68,7 +68,13 @@ def plot_brdf_data():
         index = get_index(theta_i, phi)
 
         # Set custom x-axis ticks
-        custom_ticks = np.arange(-90, 91, 45)  # Creates ticks from -90 to 90 with a step of 22.5
+        if theta_i == '45':
+            custom_ticks = [-90, -45, 0, 45, 90]
+        elif theta_i == '80':
+            custom_ticks = [-80, -45, 0, 45, 80]
+        else:
+            custom_ticks = [-80, -45, 0, 45, 80]
+
         axes[index].set_xticks(custom_ticks)
 
         # Set custom x-axis tick labels with a degree symbol
@@ -77,7 +83,7 @@ def plot_brdf_data():
 
         # Vertical lines at specified theta_o values
         for theta_line in [-80, -45, 0, 45, 80]:
-            axes[index].axvline(x=theta_line, color='lightgray', linestyle='dotted', linewidth=0.7)
+            axes[index].axvline(x=theta_line, color='gray', linestyle='dotted', linewidth=1)
 
         # Setting y-ticks for every 0.05 and adding horizontal grid lines
         #axes[index].set_yticks(np.arange(0, 0.28, 0.05))
@@ -93,13 +99,13 @@ def plot_brdf_data():
             linestyle = 'solid'
             show_legend = True
 
-        axes[index].plot(data['theta_o'], data['Lambert'], label='Lambert' if show_legend else None, color='gray',   linewidth=1.0, linestyle=linestyle)
+        axes[index].plot(data['theta_o'], data['Lambert'], label='Lambert' if show_legend else None, color='green',   linewidth=1.0, linestyle=linestyle)
         axes[index].plot(data['theta_o'], data['EON'],     label='EON'     if show_legend else None, color='orange', linewidth=1.0, linestyle=linestyle)
         axes[index].plot(data['theta_o'], data['GGX'],     label='GGX'     if show_legend else None, color='blue',   linewidth=1.0, linestyle=linestyle)
-        axes[index].plot(data['theta_o'], data['MRM'],     label='MRM'     if show_legend else None, color='green',  linewidth=1.0, linestyle=linestyle)
+        axes[index].plot(data['theta_o'], data['MRM'],     label='MRM'     if show_legend else None, color='red',  linewidth=1.0, linestyle=linestyle)
 
         # Set the title for each subplot
-        axes[index].set_title(f"$\\theta_i: {theta_i}^\\circ$, $\\phi_o: {phi}^\\circ$, $r: {roughness}$", fontsize=12)
+        axes[index].set_title(f"$\\theta_i: {theta_i}^\\circ$, $\\phi_o: {phi}^\\circ$", fontsize=14)
         axes[index].set_xlabel(f"$\\theta_o$", fontsize=16, fontweight='bold')
         axes[index].set_ylabel('BRDF value', fontsize=16)
         axes[index].set_xlim(-90, 90)
@@ -115,7 +121,7 @@ def plot_brdf_data():
     # plt.suptitle('Comparison of diffuse BRDFs with $\\rho = 0.8$, $\\sigma = \\pi/4$, and $r = 1/2$', fontsize=16)
 
     plt.tight_layout()
-    plt.savefig('BRDF_Plots.pdf')
+    plt.savefig('brdf_plots.pdf')
     plt.show()
     plt.close(fig)
 
