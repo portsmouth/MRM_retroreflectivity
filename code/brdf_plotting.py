@@ -99,10 +99,10 @@ def plot_brdf_data():
             linestyle = 'solid'
             show_legend = True
 
-        axes[index].plot(data['theta_o'], data['Lambert'], label='Lambert' if show_legend else None, color='green',   linewidth=1.0, linestyle=linestyle)
+        axes[index].plot(data['theta_o'], data['Lambert'], label='Lambert' if show_legend else None, color='red',   linewidth=1.0, linestyle=linestyle)
         axes[index].plot(data['theta_o'], data['EON'],     label='EON'     if show_legend else None, color='orange', linewidth=1.0, linestyle=linestyle)
         axes[index].plot(data['theta_o'], data['GGX'],     label='GGX'     if show_legend else None, color='blue',   linewidth=1.0, linestyle=linestyle)
-        axes[index].plot(data['theta_o'], data['MRM'],     label='MRM'     if show_legend else None, color='red',  linewidth=1.0, linestyle=linestyle)
+        axes[index].plot(data['theta_o'], data['MRM'],     label='MRM'     if show_legend else None, color='green',  linewidth=1.0, linestyle=linestyle)
 
         # Set the title for each subplot
         axes[index].set_title(f"$\\theta_i: {theta_i}^\\circ$, $\\phi_o: {phi}^\\circ$", fontsize=14)

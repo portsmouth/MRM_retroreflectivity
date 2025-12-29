@@ -362,7 +362,7 @@ It follows from the above back-vector modifications that our MRM retroreflective
 \begin{figure}[!tb]
   \centering
   \includegraphics[width=0.93\linewidth]{figures/brdf_plots.pdf}
-  \caption{Comparison of the retroreflective MRM BRDF (blue) to the regular GGX microfacet BRDF (red) and rough-diffuse EON model (orange), as a function of view direction $\theta_o$ for fixed light directions $\theta_i \in \{45^\circ, 80^\circ\}$. The dashed lines are the roughness $0.1$ case, and the solid lines roughness $0.666$. The horizontal green line at $1/\pi$ is the Lambert BRDF.}
+  \caption{Comparison of the retroreflective MRM BRDF (green) to the regular GGX microfacet BRDF (blue) and rough-diffuse EON model (orange), as a function of view direction $\theta_o$ for fixed light directions $\theta_i \in \{45^\circ, 80^\circ\}$. The dashed lines are the roughness $0.1$ case, and the solid lines roughness $0.666$. (The horizontal red line at $1/\pi$ is the Lambert BRDF).}
   \label{fig:brdf_plots}
 \end{figure}
 
@@ -562,7 +562,7 @@ Eval_result eval_bsdf_retro(vec3 V, vec3 L, vec3 N, Bsdf_params params)
     \includegraphics[width=0.99\textwidth]{figures/brdf_theta_L_plots.pdf}
   \end{center}
   \vspace{-0.5cm}
-  \caption{Measured BRDF of retroreflective tape (blue dots) at three different light source angles $\theta_L \in \{15^\circ, 30^\circ, 60^\circ\}$, and the MRM model fit (red line).}
+  \caption{Measured BRDF of retroreflective tape (black dots) at three different light source angles $\theta_L \in \{15^\circ, 30^\circ, 60^\circ\}$, and the MRM model fit (green dashed line).}
   \label{fig:data_fit}
 \end{figure}
 

@@ -110,7 +110,9 @@ for idx, (tL, data_points) in enumerate(sorted(brdf_dict_simple.items())):
 
     # Plot BRDF values vs theta_V (in degrees)
     axes[idx].clear()  # Clear previous plot
-    axes[idx].plot(theta_V_vals_deg, brdf_vals, 'o-', linewidth=1.5, markersize=4)
+    axes[idx].plot(theta_V_vals_deg, brdf_vals, 'o-', color='black', alpha=0.25, linewidth=1.5, markersize=0)
+    axes[idx].plot(theta_V_vals_deg, brdf_vals, 'o-', color='black', alpha=0.75, linewidth=0, markersize=3)
+
     axes[idx].set_xlabel('$\\theta_V$ (degrees)', fontsize=16)
     axes[idx].set_ylabel('BRDF value', fontsize=16)
     axes[idx].set_title(f'$\\theta_L = {tL_deg:.2f}^\\circ$', fontsize=16)
@@ -130,7 +132,7 @@ for idx, (tL, data_points) in enumerate(sorted(brdf_dict_simple.items())):
     axes[idx].axvline(x=tL_deg, color='grey', linestyle=':', linewidth=1.5, alpha=0.7)
     axes[idx].axvline(x=-tL_deg, color='grey', linestyle=':', linewidth=1.5, alpha=0.7)
 
-    axes[idx].plot(calc_brdf_dict[tL_deg][0], calc_brdf_dict[tL_deg][1], 'r--', label='Calculator MRM', linewidth=1.5)
+    axes[idx].plot(calc_brdf_dict[tL_deg][0], calc_brdf_dict[tL_deg][1], 'r--', color='green', label='Calculator MRM', linewidth=1.5)
 
 # Hide unused subplots
 for idx in range(len(brdf_dict_simple), len(axes)):
