@@ -292,7 +292,7 @@ For refraction, we can construct a similar refraction back-vector $\vecbt(\vecv,
   \label{fig:backvector}
 \end{figure}
 
-As illustrated in Figure \ref{fig:backvector}, the reflection $\vecvv$ of the view direction $\vecv$ on the surface can also be interpreted as a reflection of the view direction in a ``virtual mirror'' aligned with $\vecv$ and perpendicular to the surface macronormal $\vecn$, thus turning glossy forward-reflection into glossy retroreflection.  \citet{BelcourBackvector} showed that this reflection is related to the geometry of double scattering on the microsurface. Though here there is no direct physical interpretation of the back-vector as such a scattering mode, this interpretation can serve as a motivation why the components of the regular microfacet model still work on changing the domain to the back-vector.
+As illustrated in Figure \ref{fig:backvector}, the reflection $\vecvv$ of the view direction $\vecv$ on the surface can also be interpreted as a reflection of the view direction in a ``virtual mirror'' aligned with $\vecv$ and perpendicular to the surface macronormal $\vecn$, thus turning glossy forward-reflection into glossy retroreflection.  \citet{BelcourBackvector} showed that this reflection is related to the geometry of double scattering on the microsurface. Though here there is no direct physical basis for interpreting the back-vector as such a scattering mode, this can serve as an intuition for why the components of the regular microfacet model still work on changing the domain to the back-vector.
 
 We now detail the mathematical consequences of using the back-vector as microfacet selector.
 
@@ -370,7 +370,7 @@ It follows from the above back-vector modifications that our MRM retroreflective
 To gain some quantitative insight into the behavior of the MRM model, Figure~\ref{fig:brdf_plots} plots the BRDF values of the MRM model (green) compared to the rough diffuse (albedo 1) EON model \cite{Portsmouth2025EON} (orange) and GGX (blue). For both MRM and GGX, the Fresnel factor is set to 1.
 \enlargethispage{1\baselineskip}
 The $0.1$ roughness case is a very strong, tight peak (note the logarithmic scale on the y-axis), while the $0.666$ roughness case is a much broader peak.
-It is evident that MRM BRDF is the same as GGX,with the peak flipped to be back-scattering (at exactly $\theta_o =-\theta_i$, $\phi_o = \phi_i$).
+It is evident that MRM BRDF is the same as GGX,with the peak flipped to be back-scattering (at exactly $\theta_o =\theta_i$, $\phi_o = \phi_i$).
 The $\phi_o = 45^\circ$ case demonstrates the situation when the view direction is not aligned in the same azimuthal plane as the light direction. In this case. both GGX and MRM are dimmer than Lambert or EON, which compensates for the extra energy of the peaks of MRM and GGX (in which almost all of the energy is concentrated, in the reflection or retroreflection direction respectively for GGX and MRM).
 
 
