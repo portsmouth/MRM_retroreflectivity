@@ -145,10 +145,10 @@
 
 \title{The Minimal Retroreflective Microfacet Model}
 
-\author{Matthias Raab\\NVIDIA
+\author{Jamie Portsmouth\\Autodesk
         \and Laurent Belcour\\Intel
+        \and Matthias Raab\\NVIDIA
         \and Francis Liu\\NVIDIA
-        \and Jamie Portsmouth\\Autodesk
        }
 
 \teaser{
@@ -305,7 +305,7 @@ We also observe that this is true for refractive microfacets~(Equation (17) of \
 \begin{equation}
 \left\lVert \dfrac{\partial \omega_{\vecb_{t}}}{\partial \omega_{\vecl}} \right\rVert = \left\lVert \dfrac{\partial \omega_{\vech_{t}(\vecvv, \vecl)}}{\partial \omega_{\vecl}} \right\rVert = \dfrac{  \eta_o^2 \left| \vecl, \vech_{t}(\vecvv, \vecl)  \right|}{ \left\lVert \vech_{t}(\vecvv, \vecl) \right\rVert^2} \ .
 \end{equation}
-This is due to the fact that we have to differentiate with respect to the light direction which is not altered by the back vector.
+This is due to the fact that we have to differentiate with respect to the light direction which is not altered by the back-vector.
 
 \paragraph*{Microfacet reflection term.}
 There is experimental evidence~\cite{BelcourBackvector} that using a Fresnel term based on the back-vector can provide a good match to actual retroreflective material measurements for a reflection back-vector based BRDF.
@@ -313,7 +313,7 @@ As such, we update the formulation of $\rho(\vecv, \vecm)$~(Equation (11) of \ci
 \begin{equation}
   f_r^m(\vecv, \vecl, \vecm) = F(\vecvv, \vecm) \dfrac{\delta(\vecb_r, \vecm) }{4 \left| \vdot{\vecvv}{\vecb_r} \right|^2}.
 \end{equation}
-We used the fact that $\left| \vdot{\vecl}{\vecb} \right| = \left| \vdot{\vecvv}{\vecb} \right|$.
+We used the fact that $\left| \vdot{\vecl}{\vecb_r} \right| = \left| \vdot{\vecvv}{\vecb_r} \right|$.
 Similarly, for the transmissive microsurface BTDF (Equation~(18) of \citet{WalterMicrofacet}) we get
 \begin{equation}
   f_t^m(\vecv, \vecl, \vecm) = \left(1-F(\vecvv, \vecm)\right) \dfrac{\delta(\vecb_t, \vecm) \eta_o^2 }{\left( \eta_i \vdot{\vecv^\prime}{\vecb_t} + \eta_o \vdot{\vecl}{\vecb_t} \right)^2}.
@@ -323,28 +323,25 @@ Thus for both reflection and refraction, the effect on the microsurface BSDF of 
 \paragraph*{Shadowing \& Masking.}
 The term $G_{2}(\vecv,\vecl,\vechr)$ in the microfacet model accounts for shadowing and masking of microfacets.
 \enlargethispage{1\baselineskip}
-The shadowing-masking function $G_{2}(\vecv, \vecl, \vech)$ accounts for the geometrical occlusion of the incident and outgoing rays by the local microsurface geometry. It combines the visibility masking function $G_1(\vecv, \vech)$ for the view direction and the visibility shadowing function $G_1(\vecl, \vech)$ for the light direction: \footnote{This is the separable form commonly used in microfacet models; see Section 6 of \citet{HeitzMicrofacet} for a discussion of separable vs. non-separable shadowing-masking functions. In general, $G_{2}(\vecv, \vecl, \vech)$ is some function of $G_1(\vecv, \vech)$ and $G_1(\vecl, \vech)$, and thus reciprocity still holds.}
-%In the case of independent shadowing and masking, it is common to use the separable form\footnote{See Section 6 of \citet{HeitzMicrofacet} for a discussion of separable vs. non-separable shadowing-masking functions. Our derivation holds for any valid $G_2$ function, but we focus here on the separable case for simplicity.}
-\begin{equation}
-G_{2}(\vecv, \vecl, \vech) = G_1(\vecv, \vech) \, G_1(\vecl, \vech)\ .
-\end{equation}
-%Mathematically, the BSDF is plausible if $G_{2}$ is symmetric w.r.t. to exchanging $\vecv$ and $\vecl$, fulfills
-%$G_{2}(\vecv, \vech) \leq G_1(\vecv, \vecl)$, and if $G_1$ further establishes the correct projected area of visible microsurfaces \cite{HeitzMicrofacet}
-%\begin{equation}\label{eq:visible}
-%  \avdot{\vecv}{\vecn} = \int_{\Omega_{\vecv}} G_1(\vecv, \vech) \cldot{\vecv}{\vech} D(\vech) \diff\vech.
-%\end{equation}
-Popular choices for $G_1$
+The shadowing-masking function $G_{2}(\vecv, \vecl, \vech)$ accounts for the geometrical occlusion of the incident and outgoing rays by the local microsurface geometry. It combines the visibility masking function $G_1(\vecv, \vech)$ for the view direction and the visibility shadowing function $G_1(\vecl, \vech)$ for the light direction. Popular choices for $G_1$
 %with this property
-are the Smith masking function
+are the Smith masking function \footnote{Where $\chi^+$ is the Heaviside step function, and $\cldot{\vecv}{\vech}$ denotes $\vdot{\vecv}{\vech}$ clamped to be non-negative.}
 \begin{equation} \label{eq:smith_masking}
-  G_{1,\text{Smith}}(\vecv, \vech) = \frac{\chi^+(\vdot{\vecv}{\vech})  \avdot{\vecv}{\vecn}}{\int_{\Omega_{\vecv}} \cldot{\vecv}{\vech} D(\vech) \diff\vech},
+  G_{1,\text{Smith}}(\vecv, \vech) = \frac{\chi^+(\vdot{\vecv}{\vech})  \avdot{\vecv}{\vecn}}{\int \cldot{\vecv}{\vech} D(\vech) \diff\vech},
 \end{equation}
-where analytic expressions are available for Beckmann and GGX distributions, and the V-cavity masking function \cite{HeitzMicrofacet}
+where analytic expressions are available for Beckmann and GGX distributions, and the V-cavity masking function \cite{HeitzMicrofacet}:
 \begin{equation} \label{eq:vc_masking}
   G_{1,\text{VC}}(\vecv, \vech) =
   \min\left\lbrace\frac{2\avdot{\vecv}{\vecn}\avdot{\vecn}{\vech}}{\avdot{\vecv}{\vech}}, 1\right\rbrace,
 \end{equation}
 which is generally applicable for distributions with symmetry around the normal.
+
+The shadowing-masking function $G_{2}(\vecv, \vecl, \vech)$ combines the shadowing and masking functions in a reciprocal manner, for example in the separable form \footnote{See Section 6 of \citet{HeitzMicrofacet} for a discussion of separable vs. non-separable shadowing-masking functions. In general, $G_{2}(\vecv, \vecl, \vech)$ is some function of $G_1(\vecv, \vech)$ and $G_1(\vecl, \vech)$ which satisfies reciprocity.} commonly used in microfacet models $G_{2}(\vecv, \vecl, \vech) = G_1(\vecv, \vech) \, G_1(\vecl, \vech)$.
+%Mathematically, the BSDF is plausible if $G_{2}$ is symmetric w.r.t. to exchanging $\vecv$ and $\vecl$, fulfills
+%$G_{2}(\vecv, \vech) \leq G_1(\vecv, \vecl)$, and if $G_1$ further establishes the correct projected area of visible microsurfaces \cite{HeitzMicrofacet}
+%\begin{equation}\label{eq:visible}
+%  \avdot{\vecv}{\vecn} = \int_{\Omega_{\vecv}} G_1(\vecv, \vech) \cldot{\vecv}{\vech} D(\vech) \diff\vech.
+%\end{equation}
 
 We assume Smith or V-cavity masking is applied to the mirrored microfacet distribution, and thus replace  $G_{2}(\vecv, \vecl, \vech)$  with $G_{2}(\vecvv, \vecl, \vech)$ in the retroreflective microfacet model. With Smith masking, this is actually identical to a regular microfacet BSDF, as $\vecvv$ and $\vecv$ share the same geometric configuration. For V-cavity masking, taking $\vecvv$ as view direction simply corresponds to selecting $\vecb$ as microfacet normal.
 %\todo{\tiny Laurent: I think we could extract the shadowing from Matthias derivation here. The other way to justify the derivation of the full model is to highlight that Smith's shadowing/masking does not depend on the microfacet (appart from the sideness). Hence, whatever the microfacet selector (as long as the sideness matches), the shadowing/masking is the same. Since $\vecv$ and $\vecvv$ share the same slope, we can exchange them in the equation.}
@@ -416,7 +413,7 @@ First, V-cavity masking manifestly satisfies the following symmetry under reflec
 \end{equation}
 as can be verified with Equation~\eqref{eq:vc_masking}. In the case of Smith masking, this also holds provided that $D$ is reflection-symmetric around the normal (which we assumed), as follows from Equation~\eqref{eq:smith_masking}. Then it follows from standard reciprocity that
 \begin{equation}
-  G_2(\vecv, \vecll, \vech(\vecv, \vecll)) = G_2(\vecll, \vecv, \vech(\vecll, \vecv)) \ .
+  G_2(\vecv, \vecll, \vech(\vecv, \vecll)) = G_2(\vecll, \vecv, \vech(\vecll, \vecv))
 \end{equation}
 from which Equation~\eqref{eq:shadowing_symmetry} follows directly.
 
@@ -481,7 +478,7 @@ We now verify that the retroreflective microfacet model fulfills energy conserva
 \begin{equation}
   \rho_{r, \text{MRM}}(\vecv) + \rho_{t, \text{MRM}}(\vecv) \leq 1.
 \end{equation}
-For the directional albedos we simply have
+For the directional albedos we simply have \footnote{Where $\Omega_{\vecx}$ denotes the hemisphere of directions around the normal pointing to the side $\vecx$ points to.}
 \begin{equation}
   \begin{split}
   \rho_{r, \text{MRM}}(\vecv) =
@@ -639,7 +636,7 @@ Matthias Raab \newline
 &
 Laurent Belcour \newline
 \href{mailto:laurent.belcour@gmail.com}{laurent.belcour@gmail.com} \\
-Frankie Liu \newline
+Francis Liu \newline
 \href{mailto:frankie.liu@gmail.com}{frankie.liu@gmail.com} \newline
 &
 Jamie Portsmouth \newline
