@@ -475,20 +475,18 @@ Analogously, we obtain the reciprocity symmetry requirement of the BTDF
 \label{sec:energy_conservation}
 
 We now verify that the retroreflective microfacet model fulfills energy conservation, i.e. that the directional albedos fulfill
-\begin{equation}
-  \rho_{r, \text{MRM}}(\vecv) + \rho_{t, \text{MRM}}(\vecv) \leq 1.
-\end{equation}
-For the directional albedos we simply have \footnote{Where $\Omega_{\vecx}$ denotes the hemisphere of directions around the normal pointing to the side $\vecx$ points to.}
-\begin{equation}
+$\rho_{r, \text{MRM}}(\vecv) + \rho_{t, \text{MRM}}(\vecv) \leq 1$ for all $\vecv$.
+For the directional albedos we simply have (where $\Omega_{\vecx}$ denotes the hemisphere containing $\vecx$):
+\begin{eqnarray}
   \begin{split}
   \rho_{r, \text{MRM}}(\vecv) =
   \int_{\Omega_{\vecv}} f_{r, \text{MRM}}(\vecv, \vecl) \avdot{\vecl}{\vecn} \diff\vecl =
   \int_{\Omega_{\vecvv}} f_r(\vecvv, \vecl) \avdot{\vecl}{\vecn} \diff\vecl = \rho_r(\vecvv),\\
-  \rho_{t, \text{MRM}}(\vecv) =
+   \rho_{t, \text{MRM}}(\vecv) =
   \int_{\Omega_{-\vecv}} f_{t, \text{MRM}}(\vecv, \vecl) \avdot{\vecl}{\vecn} \diff\vecl =
   \int_{\Omega_{-\vecvv}} f_t(\vecvv, \vecl) \avdot{\vecl}{\vecn} \diff\vecl = \rho_t(\vecvv) \ .
   \end{split}
-\end{equation}
+\end{eqnarray}
 That is, the directional albedo of MRM is equivalent to the directional albedo of the regular microfacet BSDF, but evaluated at the reflected direction.
 As the original microfacet BSDF fulfills energy conversion, the retroreflective modification does, too.
 %% Which, using equation \eqref{eq:visible} and $\frac{d\vech(\vecvv, \vecl)}{d\vecl} = \frac{1}{4 \vdot{\vecl}{\vech(\vecvv, \vecl)}}= \frac{1}{4 \vdot{\vecvv}{\vech(\vecvv, \vecl)}}$ \cite{WalterMicrofacet}, can be shown to fulfill energy conservation
