@@ -193,7 +193,7 @@ they were unable to derive a close form solution for it. %and relied on fitting 
 
 For practical purposes in visual effects, we are interested in a model which is a) visually plausible and follows measured observations reasonably well, b) provably energy-conserving and reciprocal, c) efficient and easy to implement. We present here a model based on the previously published \emph{back-vector} formulation~\cite{BelcourBackvector} which meets all these requirements. It is so simple a modification to a regular microfacet model, that we term it the ``Minimal Retroreflective Microfacet'' (MRM) model which achieves a plausible result.
 
-In Section \ref{sec:back_vector_microfacets}, we detail the derivation of MRM as a modification of the standard microfacet model~\cite{WalterMicrofacet,HeitzMicrofacet} using the back-vector as microfacet normal selector. To check the plausibility of the model, in Section \ref{sec:reciprocity} we verify reciprocity symmetry and in Section \ref{sec:energy_conservation} we verify energy conservation.
+In Section~\ref{sec:back_vector_microfacets}, we detail the derivation of MRM as a modification of the standard microfacet model~\cite{WalterMicrofacet,HeitzMicrofacet} using the back-vector as microfacet normal selector. To check the plausibility of the model, in Section \ref{sec:reciprocity} we verify reciprocity symmetry and in Section \ref{sec:energy_conservation} we verify energy conservation.
 In Section~\ref{sec:implementation}, we sketch how the model can be implemented in practice, which is done trivially by reusing existing microfacet BSDF implementations. Finally in Section~\ref{sec:results}, we provide a comparison with measured data and some visual results.
 
 
@@ -343,7 +343,7 @@ The shadowing-masking function $G_{2}(\vecv, \vecl, \vech)$ combines the shadowi
 %  \avdot{\vecv}{\vecn} = \int_{\Omega_{\vecv}} G_1(\vecv, \vech) \cldot{\vecv}{\vech} D(\vech) \diff\vech.
 %\end{equation}
 
-We assume Smith or V-cavity masking is applied to the mirrored microfacet distribution, and thus replace  $G_{2}(\vecv, \vecl, \vech)$  with $G_{2}(\vecvv, \vecl, \vech)$ in the retroreflective microfacet model. With Smith masking, this is actually identical to a regular microfacet BSDF, as $\vecvv$ and $\vecv$ share the same geometric configuration. For V-cavity masking, taking $\vecvv$ as view direction simply corresponds to selecting $\vecb$ as microfacet normal.
+We assume Smith or V-cavity masking is applied to the mirrored microfacet distribution, and thus replace  $G_{2}(\vecv, \vecl, \vech)$  with $G_{2}(\vecvv, \vecl, \vech)$ in the retroreflective microfacet model. With Smith masking under the assumption of a reflection-symmetric NDF, this is actually identical to a regular microfacet BSDF, as $\vecvv$ and $\vecv$ share the same geometric configuration (see Section~\ref{sec:reciprocity}). For V-cavity masking, taking $\vecvv$ as view direction simply corresponds to selecting $\vecb$ as microfacet normal.
 %\todo{\tiny Laurent: I think we could extract the shadowing from Matthias derivation here. The other way to justify the derivation of the full model is to highlight that Smith's shadowing/masking does not depend on the microfacet (appart from the sideness). Hence, whatever the microfacet selector (as long as the sideness matches), the shadowing/masking is the same. Since $\vecv$ and $\vecvv$ share the same slope, we can exchange them in the equation.}
 
 \paragraph*{Final form.}
